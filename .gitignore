@@ -1,0 +1,27 @@
+# Binaries and archives
+*.exe
+*.asar
+*.asar.orig
+*.asar.patched
+*.zip
+*.tar.gz
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.spec
+build/
+dist/
+
+# Logs and temp files
+*.log
+deploy_result.txt
+temp_*.js
+*.tmp
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
