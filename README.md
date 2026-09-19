@@ -19,8 +19,8 @@ Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerd
    - v3.14.0 ile gelen 3 adımlı Karşılama Sihirbazı (Onboarding), İş Akışları (Workflows) merkezi, Araç Çağrısı (ToolCalls) arayüzleri ve yeni ayarlar.
    - Electron yerel masaüstü menüleri (Dosya, Düzen, Görünüm, Pencere, Yardım).
    - Güncelleyici diyalogları ve Türkçe yerel tarih biçimlendirmesi (`19 Eylül 2026`).
-2. **Resmi Eklenti Mağazası ve Claude Code Eklentileri (325+ Paket):**
-   - 34 Resmi ZCode eklentisinin başlık ve açıklamaları.
+2. **Resmi Eklenti Mağazası ve Claude Code Eklentileri (330+ Paket):**
+   - 40 Resmi ZCode eklentisinin (Plugin Creator, PDF, Documents, Presentations, Spreadsheets, Finans, Güvenlik vb.) başlık ve Türkçe açıklamaları.
    - Claude Code Mağazasındaki 291 eklentinin tamamının Türkçe açıklamaları (orijinal marka ve ürün adları korunarak).
 3. **Ajan Becerileri (Skills) ve Komutlar (Slash Commands):**
    - Tüm `/komut` açıklamaları, argüman ipuçları (`[hedef veya sorun açıklaması]`), grup başlıkları (`Android Emülatörü 1`, `iOS Simülatörü 1`, `Eski Oturumları Geri Yükle 1`).
