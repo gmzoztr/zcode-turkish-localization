@@ -217,11 +217,31 @@ def patch_styles(js_content):
     "Quarterly": "3 Aylık",
     "Yearly": "Yıllık",
     "-20%": "-%20",
-    "-30%": "-%30",
-    "/month": "/ay",
-    "/ month": "/ay",
-    " /month": " /ay",
-    " / month": " /ay",
+    "/month": " / ay",
+    "/Month": " / ay",
+    "/ month": " / ay",
+    "/ Month": " / ay",
+    " /month": " / ay",
+    " /Month": " / ay",
+    " / month": " / ay",
+    " / Month": " / ay",
+    "／month": " / ay",
+    "／Month": " / ay",
+    "month": "ay",
+    "Month": "ay",
+    "MONTH": "ay",
+    "year": "yıl",
+    "Year": "yıl",
+    "YEAR": "yıl",
+    "US$18.00 /month": "US$18.00 / ay",
+    "US$80.00 /month": "US$80.00 / ay",
+    "US$168.00 /month": "US$168.00 / ay",
+    "US$18.00 /Month": "US$18.00 / ay",
+    "US$80.00 /Month": "US$80.00 / ay",
+    "US$168.00 /Month": "US$168.00 / ay",
+    "US$18.00/month": "US$18.00 / ay",
+    "US$80.00/month": "US$80.00 / ay",
+    "US$168.00/month": "US$168.00 / ay",
     "Ideal for getting started": "Başlangıç için ideal",
     "5-day free trial, including:": "5 günlük ücretsiz deneme, şunları içerir:",
     "5-day free trial, including": "5 günlük ücretsiz deneme, şunları içerir",
@@ -380,14 +400,18 @@ def patch_styles(js_content):
           modified = modified.replaceAll(en, TR_MAP[en]);
         }
       }
+      modified = modified.replace(/[\/／]\s*months?\b/gi, " / ay");
+      modified = modified.replace(/[\/／]\s*years?\b/gi, " / yıl");
+      modified = modified.replace(/(?<![\/／]|\/ )(?<![a-zA-Z])months?\b/gi, "ay");
+      modified = modified.replace(/(?<![\/／]|\/ )(?<![a-zA-Z])years?\b/gi, "yıl");
       if (clean.startsWith("6x Lite usage") || clean.startsWith("6× Lite usage")) {
-        modified = "6 kat Lite kullanımı + Tüm Lite avantajları";
+        modified = "6 kat Lite kullanımı + Tüm avantajlar";
       } else if (clean.startsWith("14x Lite usage") || clean.startsWith("14× Lite usage")) {
-        modified = "14 kat Lite kullanımı + Tüm Lite avantajları";
+        modified = "14 kat Lite kullanımı + Tüm avantajlar";
       } else if (clean.startsWith("20x Lite usage") || clean.startsWith("20× Lite usage")) {
-        modified = "20 kat Lite kullanımı + Tüm Pro avantajları";
+        modified = "20 kat Lite kullanımı + Tüm avantajlar";
       } else if (clean.startsWith("Save 10% annually")) {
-        modified = clean.replace("Save 10% annually", "Yıllık %10 indirim").replace("From", "Başlangıç:").replace("/month", "/ ay").replace("/ay", "/ ay");
+        modified = clean.replace("Save 10% annually", "Yıllık %10 indirim").replace("From", "Başlangıç:").replace(/[\/／]\s*months?\b/gi, " / ay").replace("/ay", " / ay");
       } else if (clean.startsWith("Unified")) {
         modified = "Birleşik kullanıcı ve yetki yönetimi";
       }
@@ -542,7 +566,20 @@ def patch_styles(js_content):
         "hexin": "RoyalFlush iFinD hisse senedi, küresel hisseler, endeks, fon ve tahvil verileri için MCP hizmetleri.",
         "wind": "Wind hisse senedi, küresel hisseler, endeks, fon, tahvil, ekonomik ve doküman verileri için MCP hizmetleri.",
         "tianyancha": "Tianyancha şirket bilgileri sorguları için MCP hizmeti.",
-        "finance-search": "SEC EDGAR dosyalama araması ve finansal web/haber aramaları için MCP hizmetleri."
+        "finance-search": "SEC EDGAR dosyalama araması ve finansal web/haber aramaları için MCP hizmetleri.",
+        "documents": "Resmi ZCode eklentisi olarak yayınlanan DOCX belge üretim becerileri.",
+        "documents-plugin": "Resmi ZCode eklentisi olarak yayınlanan DOCX belge üretim becerileri.",
+        "pdf": "Resmi ZCode eklentisi olarak yayınlanan PDF belge üretim becerileri.",
+        "pdf-plugin": "Resmi ZCode eklentisi olarak yayınlanan PDF belge üretim becerileri.",
+        "presentations": "Resmi ZCode eklentisi olarak yayınlanan PPTX sunum üretim becerileri.",
+        "presentations-plugin": "Resmi ZCode eklentisi olarak yayınlanan PPTX sunum üretim becerileri.",
+        "spreadsheets": "Resmi ZCode eklentisi olarak yayınlanan XLSX hesap tablosu üretim becerileri.",
+        "spreadsheets-plugin": "Resmi ZCode eklentisi olarak yayınlanan XLSX hesap tablosu üretim becerileri.",
+        "image-search": "İllüstrasyonlar ve referans görselleri bulmak için resmi ZCode görsel arama MCP sunucusu.",
+        "image-search-plugin": "İllüstrasyonlar ve referans görselleri bulmak için resmi ZCode görsel arama MCP sunucusu.",
+        "node-repl-host": "Resmi ZCode yetenekleri için paylaşılan node_repl çalışma ortamı barındırıcısı.",
+        "plugin-creator": "Yerel bir geliştirici pazar yeri, kurulum, denemeler ve güncellemeler aracılığıyla ZCode eklentileri geliştirin ve doğrulayın.",
+        "plugin-creator-plugin": "Yerel bir geliştirici pazar yeri, kurulum, denemeler ve güncellemeler aracılığıyla ZCode eklentileri geliştirin ve doğrulayın."
     }
     claude_tr_file = os.path.join(BASE_DIR, "claude_plugins_tr.json")
     if os.path.exists(claude_tr_file):
@@ -571,7 +608,7 @@ def patch_styles(js_content):
             f'const TR_P_DESCS={tr_p_descs_json};'
             f'{plugin_row_helpers}'
             f'function {fn_m4}(e,t){{let k=(e&&(e.name||e.id||(e.listing&&e.listing.displayName)))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_NAMES[base])return TR_P_NAMES[base];if(TR_P_NAMES[k])return TR_P_NAMES[k];let res={fn_dn}(e,t);if(TR_P_NAMES[res])return TR_P_NAMES[res];return res}}'
-            f'function {fn_h4}(e,t){{let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res={fn_pne}(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){{if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}}return res}}'
+            f'function {fn_h4}(e,t){{let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res={fn_pne}(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){{if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.startsWith("Develop and validate ZCode plugins"))return TR_P_DESCS["plugin-creator"];if(res.startsWith("PDF document production skills"))return TR_P_DESCS["pdf"];if(res.startsWith("PPTX presentation production skills"))return TR_P_DESCS["presentations"];if(res.startsWith("XLSX spreadsheet production skills"))return TR_P_DESCS["spreadsheets"];if(res.startsWith("DOCX document production skills"))return TR_P_DESCS["documents"];if(res.startsWith("Official ZCode image search"))return TR_P_DESCS["image-search"];if(res.startsWith("Shared node_repl runtime host"))return TR_P_DESCS["node-repl-host"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}}return res}}'
         )
         js_content = js_content.replace(m_m4.group(0), m4_replacement, 1)
 

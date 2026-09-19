@@ -22,6 +22,7 @@ except Exception as _e:
     pass
 
 PLUGIN_TRANSLATIONS = {
+    # Resmi araçlar ve sistem eklentileri
     "android-emulator": {
         "displayName": "Android Emülatörü",
         "description": "Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları."
@@ -39,6 +40,30 @@ PLUGIN_TRANSLATIONS = {
             "Bu CSV dosyasından grafikler içeren bir Excel çalışma kitabı oluştur"
         ]
     },
+    "documents": {
+        "displayName": "Documents",
+        "description": "Resmi ZCode eklentisi olarak yayınlanan DOCX belge üretim becerileri."
+    },
+    "pdf": {
+        "displayName": "PDF",
+        "description": "Resmi ZCode eklentisi olarak yayınlanan PDF belge üretim becerileri."
+    },
+    "presentations": {
+        "displayName": "Presentations",
+        "description": "Resmi ZCode eklentisi olarak yayınlanan PPTX sunum üretim becerileri."
+    },
+    "spreadsheets": {
+        "displayName": "Spreadsheets",
+        "description": "Resmi ZCode eklentisi olarak yayınlanan XLSX hesap tablosu üretim becerileri."
+    },
+    "image-search": {
+        "displayName": "Image Search",
+        "description": "İllüstrasyonlar ve referans görselleri bulmak için resmi ZCode görsel arama MCP sunucusu."
+    },
+    "node-repl-host": {
+        "displayName": "node_repl Barındırıcısı",
+        "description": "Resmi ZCode yetenekleri için paylaşılan node_repl çalışma ortamı barındırıcısı."
+    },
     "ios-simulator": {
         "displayName": "iOS Simülatörü",
         "description": "iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları."
@@ -50,6 +75,10 @@ PLUGIN_TRANSLATIONS = {
     "skill-creator": {
         "displayName": "Beceri Oluşturucu",
         "description": "Yeni ajan becerileri ve iş akışları oluşturmak için rehberli araç seti."
+    },
+    "plugin-creator": {
+        "displayName": "Plugin Creator",
+        "description": "Yerel bir geliştirici pazar yeri, kurulum, denemeler ve güncellemeler aracılığıyla ZCode eklentileri geliştirin ve doğrulayın."
     },
     "zcode-guide": {
         "displayName": "ZCode Rehberi",
@@ -66,6 +95,110 @@ PLUGIN_TRANSLATIONS = {
     "zcode-cua": {
         "displayName": "Bilgisayar Kontrolü",
         "description": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin."
+    },
+    "video-agent-kit": {
+        "displayName": "Video Ajan Kiti",
+        "description": "Otomatik video düzenleme araç seti: Bulut ses transkripsiyonu ve sentezi, kare analizi, zaman çizelgesi ve önizleme."
+    },
+    "video2code": {
+        "displayName": "Video2Code",
+        "description": "ZCode yerleşik Browser Use WebView ile WebM kaydı ve ffmpeg ile MP4 dönüştürme/yeniden oluşturma."
+    },
+    "mimosa": {
+        "displayName": "Kod Güvenlik Koruması",
+        "description": "ZCode için yazma öncesi kancalar, tur sonu incelemesi, Git kapıları ve güvenlik taraması becerisiyle yerel öncelikli güvenlik koruması."
+    },
+    "cloudbase-skills": {
+        "displayName": "CloudBase Becerileri",
+        "description": "Web, WeChat Mini Programı, veritabanı, bulut fonksiyonları ve yapay zeka projeleri için CloudBase geliştirme becerileri ve MCP entegrasyonu."
+    },
+    "github": {
+        "displayName": "GitHub CLI",
+        "description": "Commit, pull request, issue, release, Actions ve repolar için GitHub CLI iş akışları."
+    },
+    "gitlab": {
+        "displayName": "GitLab CLI",
+        "description": "Merge request, issue, CI/CD ve repolar için GitLab resmi ajan becerilerine dayalı GitLab CLI iş akışları."
+    },
+    "alibaba-cloud-cli": {
+        "displayName": "Alibaba Cloud CLI",
+        "description": "Kimlik bilgisi kurulumu, profil kontrolleri ve güvenli bulut kaynak işlemleri için Alibaba Cloud CLI iş akışları."
+    },
+    "lark-cli": {
+        "displayName": "Lark CLI",
+        "description": "Belgeler, tablolar, Base, takvim ve mesajlaşma için rehberli kurulum ve OAuth girişli Lark CLI iş akışları."
+    },
+    "tencent-meeting-cli": {
+        "displayName": "Tencent Meeting CLI",
+        "description": "OAuth2 kurulumu, toplantı yönetimi, kayıtlar ve katılımcı raporlarıyla Tencent Meeting CLI iş akışları."
+    },
+    "dingtalk-cli": {
+        "displayName": "DingTalk CLI",
+        "description": "OAuth/cihaz yetkilendirmesi, profil kontrolleri ve yeteneklerle DingTalk Çalışma Alanı CLI iş akışları."
+    },
+    "wecom-cli": {
+        "displayName": "WeCom CLI",
+        "description": "Mesajlar, belgeler, tablolar, takvim, toplantılar ve kişiler için QR doğrulamalı WeCom CLI iş akışları."
+    },
+    "obsidian": {
+        "displayName": "Obsidian",
+        "description": "Obsidian Markdown notları, Bases veritabanı görünümleri, Canvas panoları, CLI otomasyonu ve görselleştirme becerileri."
+    },
+    "accounting-and-reporting": {
+        "displayName": "Muhasebe ve Raporlama",
+        "description": "Şirket defterinden muhasebe kapanışı ve yasal raporlama: ay sonu kontrolleri ve mutabakat."
+    },
+    "assess-credit": {
+        "displayName": "Sabit Getiri ve Kredi Araştırması",
+        "description": "Sabit getirili menkul kıymetler ve kredi araştırması: tahvil profilleri, ihraççı değerlendirmesi ve getiri eğrisi analizi."
+    },
+    "find-clients": {
+        "displayName": "Kurumsal Müşteri Kazanımı",
+        "description": "Kurumsal bankacılık müşteri kazanımı: bölgeye ve sektöre göre potansiyel müşteri taraması ve fırsat analizi."
+    },
+    "model-deals": {
+        "displayName": "İşlem Modelleme ve Yapılandırma",
+        "description": "İşlem yapılandırma ve modelleme: M&A, IPO ve sermaye artırımı seyreltme analizi."
+    },
+    "pick-funds": {
+        "displayName": "Fon ve Portföy Araştırması",
+        "description": "Fon ve fon yöneticisi araştırması: çok kriterli fon taraması, portföy ve stil analizi."
+    },
+    "read-macro": {
+        "displayName": "Makro Strateji Analizi",
+        "description": "Yukarıdan aşağıya makro strateji: büyüme, enflasyon, likidite ve çapraz varlık dağılım görünümleri."
+    },
+    "run-fpa": {
+        "displayName": "Finansal Planlama ve Analiz (FP&A)",
+        "description": "Kurumsal finansman ve FP&A: yönetim raporlaması, nakit akışı tahminleri ve bütçe-gerçekleşen varyans analizi."
+    },
+    "vet-companies": {
+        "displayName": "Şirket Durum Tespiti (Due Diligence)",
+        "description": "Karşı taraf ve şirket durum tespiti: yapılandırılmış DD raporları, tedarik zinciri haritalama ve risk taraması."
+    },
+    "watch-positions": {
+        "displayName": "Pozisyon ve Portföy Takibi",
+        "description": "İzleme listesi ve portföy takibi: kapanış sonrası özetler, pozisyon olay uyarıları ve gün içi hareket analizi."
+    },
+    "write-research": {
+        "displayName": "Yatırım ve Hisse Araştırması",
+        "description": "Uçtan uca yatırım araştırma raporları, sektör analizi, kazanç güncellemeleri ve değerleme modelleri."
+    },
+    "hexin": {
+        "displayName": "Tonghuashun iFinD",
+        "description": "RoyalFlush iFinD hisse senedi, küresel hisseler, endeks, fon ve tahvil verileri için MCP hizmetleri."
+    },
+    "wind": {
+        "displayName": "Wind Finansal Veri",
+        "description": "Wind hisse senedi, küresel hisseler, endeks, fon, tahvil, ekonomik ve doküman verileri için MCP hizmetleri."
+    },
+    "tianyancha": {
+        "displayName": "Tianyancha Şirket Bilgileri",
+        "description": "Tianyancha şirket bilgileri sorguları için MCP hizmeti."
+    },
+    "finance-search": {
+        "displayName": "Finansal Arama",
+        "description": "SEC EDGAR dosyalama araması ve finansal web/haber aramaları için MCP hizmetleri."
     }
 }
 
@@ -80,6 +213,7 @@ SKILL_TRANSLATIONS = {
     "ios-dev": "ios-simulator MCP araçlarıyla iOS simülatör uygulamaları derleyin, çalıştırın, inceleyin ve otomatikleştirin.",
     "restore-legacy-sessions": "Eski ACP dönemi ZCode oturumlarını inceleyin, planlayın ve yeni ZCode oturum deposuna geri yükleyin.",
     "skill-creator": "Yeni yetenekler oluşturun, mevcut yetenekleri düzenleyin ve metinleri iyileştirin.",
+    "plugin-creator": "ZCode eklenti kaynak kodunu ve yerel test pazar yerini oluşturun veya güncelleyin; ardından kullanıcıya uygulamada ekleme, yükleme, güncelleme ve deneme adımlarında rehberlik edin.",
     "computer-use": "Erişilebilirlik odaklı semantik eylemler ve görsel doğrulama ile masaüstü kontrolü.",
     "diagnosing-commands": "ZCode istemcisindeki özel eğik çizgi komutu (/komut) yapılandırma sorunlarını tanılayın ve düzeltin.",
     "diagnosing-hooks": "ZCode istemcisindeki kanca (hook) yapılandırma sorunlarını tanılayın ve düzeltin.",
