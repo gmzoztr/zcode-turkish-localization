@@ -12,6 +12,15 @@ import re
 USER_ZCODE = os.path.expanduser(r"~\.zcode")
 PROGRAM_PACKAGES = r"C:\Program Files\ZCode\resources\glm\packages"
 
+CLAUDE_PLUGINS_TR = {}
+try:
+    _claude_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "claude_plugins_tr.json")
+    if os.path.exists(_claude_json):
+        with open(_claude_json, "r", encoding="utf-8") as _f:
+            CLAUDE_PLUGINS_TR = json.load(_f)
+except Exception as _e:
+    pass
+
 PLUGIN_TRANSLATIONS = {
     "android-emulator": {
         "displayName": "Android Emülatörü",
@@ -161,9 +170,17 @@ def patch_json_file(filepath):
                         changed = True
                     if "examplePrompts" in tr_info:
                         pl["examplePrompts"] = tr_info["examplePrompts"]
-                        if "examplePrompts_i18n" not in pl:
+                        if "examplePrompts_i18n" not in pl or not isinstance(pl["examplePrompts_i18n"], dict):
                             pl["examplePrompts_i18n"] = {}
                         pl["examplePrompts_i18n"]["tr"] = tr_info["examplePrompts"]
+                        changed = True
+                elif CLAUDE_PLUGINS_TR and pname in CLAUDE_PLUGINS_TR:
+                    c_desc = CLAUDE_PLUGINS_TR[pname]
+                    if pl.get("description") != c_desc:
+                        pl["description"] = c_desc
+                        if "description_i18n" not in pl or not isinstance(pl["description_i18n"], dict):
+                            pl["description_i18n"] = {}
+                        pl["description_i18n"]["tr"] = c_desc
                         changed = True
 
         if changed:

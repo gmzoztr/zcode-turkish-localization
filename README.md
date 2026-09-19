@@ -17,8 +17,9 @@ Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerd
 1. **Tam Kapsamlı Arayüz (5.539+ Anahtar):**
    - React-Intl dil sağlayıcısı (`IntlProvider`) üzerinden 5.539 anahtarın tamamı Türkçe terminoloji standartlarına uygun olarak yerelleştirildi.
    - Electron yerel masaüstü menüleri (Dosya, Düzen, Görünüm, Pencere, Yardım).
-2. **Resmi Eklenti Mağazası (34 Paket):**
-   - Browser Use, Bilgisayar Kontrolü (Computer Use), Belge Becerileri, DingTalk, Lark, Obsidian, Alibaba Cloud, GitHub CLI ve tüm finans/araştırma eklentilerinin başlıkları ve açıklamaları.
+2. **Resmi Eklenti Mağazası ve Claude Code Eklentileri (325+ Paket):**
+   - 34 Resmi ZCode eklentisinin başlık ve açıklamaları.
+   - Claude Code Mağazasındaki 291 eklentinin tamamının Türkçe açıklamaları (orijinal marka ve ürün adları korunarak).
 3. **Ajan Becerileri (Skills) ve Komutlar (Slash Commands):**
    - Tüm `/komut` açıklamaları, argüman ipuçları (`[hedef veya sorun açıklaması]`), grup başlıkları (`Android Emülatörü 1`, `iOS Simülatörü 1`, `Eski Oturumları Geri Yükle 1`).
 4. **Planı Yükselt & Webview Arayüzü:**
