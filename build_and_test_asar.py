@@ -155,6 +155,19 @@ def patch_intl(js_content, tr_dict):
     return js_content
 
 def patch_menu(js_content):
+    m = re.search(r'(\w+)=(\{"zh-CN":\{"titleBar\.menu\.file":.*?\}\});function\s+', js_content)
+    if m:
+        var_name = m.group(1)
+        json_str = m.group(2)
+        kp_data = json.loads(json_str)
+        for k, v in MENU_TR_V2.items():
+            if "en-US" in kp_data:
+                kp_data["en-US"][k] = v
+            if "zh-CN" in kp_data:
+                kp_data["zh-CN"][k] = v
+        new_kp_json = json.dumps(kp_data, ensure_ascii=False)
+        return js_content[:m.start()] + f"{var_name}={new_kp_json};function " + js_content[m.end():]
+
     pos_kp = js_content.find('Kp={"zh-CN":')
     if pos_kp != -1:
         pos_end_kp = js_content.find('};function db(', pos_kp)
@@ -437,18 +450,30 @@ def patch_styles(js_content):
 
         js_content = js_content[:pos_fn_start] + fn_sig + new_fn_body + js_content[pos_fn_end:]
 
-    # Webview navigation hook to re-run nMe() on page finish or navigation
-    target_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e)},i=()=>{j(e)}'
-    replacement_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})},i=()=>{j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})}'
-    if target_r_i in js_content:
-        js_content = js_content.replace(target_r_i, replacement_r_i, 1)
+    # Webview navigation hook to re-run style injection on page finish or navigation
+    pat_ri = r"r=\(\)=>\{(\w+)\(e=>\(\{\.\.\.e,isLoading:!1\}\)\),(\w+)\(e\)\},i=\(\)=>\{(\w+)\(e\)\}"
+    m_ri = re.search(pat_ri, js_content)
+    if m_ri:
+        style_fn_m = re.search(r"function\s+(\w+)\(\)\{return`\(\(\)\s*=>\s*\{\s*const styleId =", js_content)
+        style_fn_name = style_fn_m.group(1) if style_fn_m else "Y1e"
+        repl_ri = f"r=()=>{{{m_ri.group(1)}(e=>({{...e,isLoading:!1}})),{m_ri.group(2)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}},i=()=>{{{m_ri.group(3)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}}"
+        js_content = js_content.replace(m_ri.group(0), repl_ri, 1)
+    else:
+        target_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e)},i=()=>{j(e)}'
+        replacement_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})},i=()=>{j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})}'
+        if target_r_i in js_content:
+            js_content = js_content.replace(target_r_i, replacement_r_i, 1)
 
     # Skill description regex
     skill_pattern = r'function\s+(\w+)\(e,t\)\{return\((\w+)\(e\)\?(\w+)\[e\.name\]\?\.\[t\?\?`en-US`\]:void 0\)\?\?e\.description\}'
     js_content = re.sub(skill_pattern, r'function \1(e,t){return e.description||(\2(e)?\3[e.name]?.[t??`en-US`]:void 0)}', js_content)
 
-    # Date format
+    # Date formats (short date and updater release date)
     js_content = js_content.replace("Intl.DateTimeFormat(t,{day:`numeric`,month:`short`", 'Intl.DateTimeFormat("tr-TR",{day:`numeric`,month:`short`')
+    target_tqt = "new Intl.DateTimeFormat(t,{year:`numeric`,month:`long`,day:`numeric`,timeZone:`UTC`}).format(n)"
+    replacement_tqt = 'new Intl.DateTimeFormat("tr-TR",{year:`numeric`,month:`long`,day:`numeric`,timeZone:`UTC`}).format(n)'
+    if target_tqt in js_content:
+        js_content = js_content.replace(target_tqt, replacement_tqt, 1)
 
     # Computer use labels
     js_content = js_content.replace("title:`Computer Use`", "title:`Bilgisayar Kontrolü`")
@@ -482,7 +507,7 @@ def patch_styles(js_content):
     )
     js_content = re.sub(e4_pattern, e4_replacement, js_content)
 
-    # Plugin marketplace card titles and descriptions m4/h4 replacement
+    # Plugin marketplace card titles and descriptions
     official_p_descs = {
         "browser-use": "Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik.",
         "computer-use": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin.",
@@ -525,17 +550,32 @@ def patch_styles(js_content):
             official_p_descs.update(json.load(_cf))
     tr_p_descs_json = json.dumps(official_p_descs, ensure_ascii=False)
 
-    m4_target = "function m4(e,t){return Dn(e,t)}function h4(e,t){return pne(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n)}"
-    m4_replacement = (
-        'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emülatörü","ios-simulator":"iOS Simülatörü","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","zcode-cua":"Bilgisayar Kontrolü","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri"};'
-        f'const TR_P_DESCS={tr_p_descs_json};'
-        'function m4(e,t){let k=(e&&(e.name||e.id||(e.listing&&e.listing.displayName)))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_NAMES[base])return TR_P_NAMES[base];if(TR_P_NAMES[k])return TR_P_NAMES[k];let res=Dn(e,t);if(TR_P_NAMES[res])return TR_P_NAMES[res];return res}'
-        'function h4(e,t){let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res=pne(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}return res}'
+    plugin_row_helpers = (
+        'function _trPluginDescRow(e){if(!e)return"";let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
+        'if(typeof TR_P_DESCS!=="undefined"){if(TR_P_DESCS[b])return TR_P_DESCS[b];if(TR_P_DESCS[n])return TR_P_DESCS[n]};'
+        'return e.description||""};'
+        'function _trPluginNameRow(e,fallback){if(!e)return fallback;let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
+        'if(typeof TR_P_NAMES!=="undefined"){if(TR_P_NAMES[b])return TR_P_NAMES[b];if(TR_P_NAMES[n])return TR_P_NAMES[n]};'
+        'return fallback};'
     )
-    if m4_target in js_content:
-        js_content = js_content.replace(m4_target, m4_replacement, 1)
 
-    # Subagents descriptions MHt replacement
+    pat_m4 = r"function\s+(\w+)\(e,t\)\{return\s+(\w+)\(e,t\)\}function\s+(\w+)\(e,t\)\{return\s+(\w+)\(t,e\.summary\?\.description\?\?e\.info\?\.description\?\?e\.installedMeta\?\.description,e\.listing\?\.descriptionI18n\)\}"
+    m_m4 = re.search(pat_m4, js_content)
+    if m_m4:
+        fn_m4 = m_m4.group(1)
+        fn_dn = m_m4.group(2)
+        fn_h4 = m_m4.group(3)
+        fn_pne = m_m4.group(4)
+        m4_replacement = (
+            'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emülatörü","ios-simulator":"iOS Simülatörü","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","zcode-cua":"Bilgisayar Kontrolü","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri"};'
+            f'const TR_P_DESCS={tr_p_descs_json};'
+            f'{plugin_row_helpers}'
+            f'function {fn_m4}(e,t){{let k=(e&&(e.name||e.id||(e.listing&&e.listing.displayName)))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_NAMES[base])return TR_P_NAMES[base];if(TR_P_NAMES[k])return TR_P_NAMES[k];let res={fn_dn}(e,t);if(TR_P_NAMES[res])return TR_P_NAMES[res];return res}}'
+            f'function {fn_h4}(e,t){{let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res={fn_pne}(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){{if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}}return res}}'
+        )
+        js_content = js_content.replace(m_m4.group(0), m4_replacement, 1)
+
+    # Subagents descriptions replacement
     if "function _trAgentDesc(" not in js_content:
         subagent_helpers = (
             'const TR_AGENT_DESCS={"general-purpose":"Karmaşık soruları araştırmak, kod aramak ve çok adımlı görevleri yürütmek için genel amaçlı ajan.",'
@@ -550,34 +590,32 @@ def patch_styles(js_content):
             'if(d.startsWith("THE single visual acceptance pass")||d.startsWith("THE single visual acceptance"))return TR_AGENT_DESCS["judge"]}'
             'return d};'
         )
-        pos_mht = js_content.find('function MHt(')
-        if pos_mht != -1:
-            js_content = js_content[:pos_mht] + subagent_helpers + js_content[pos_mht:]
-            target_sub = f'children:e.description||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
-            replacement_sub = f'children:_trAgentDesc(e)||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
-            if target_sub in js_content:
-                js_content = js_content.replace(target_sub, replacement_sub, 1)
+        target_sub = f'children:e.description||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
+        replacement_sub = f'children:_trAgentDesc(e)||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
+        if target_sub in js_content:
+            pos_fn = js_content.rfind("function ", 0, js_content.find(target_sub))
+            if pos_fn != -1:
+                js_content = js_content[:pos_fn] + subagent_helpers + js_content[pos_fn:]
+            else:
+                js_content = subagent_helpers + js_content
+            js_content = js_content.replace(target_sub, replacement_sub, 1)
 
-    # Section titles helper and V7, m7 injection
+    # Section titles helper injection
     if "function _trSectionTitle(" not in js_content:
-        pos_m7 = js_content.find("function m7(")
-        if pos_m7 != -1:
-            section_title_helper = (
-                'const TR_SEC_TITLES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle",'
-                '"Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi",'
-                '"Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü",'
-                '"Document Skills":"Belge Becerileri","Browser Use":"Browser Use","Computer Use":"Bilgisayar Kontrolü"};'
-                'function _trSectionTitle(n){return TR_SEC_TITLES[n]||n};'
-            )
-            js_content = js_content[:pos_m7] + section_title_helper + js_content[pos_m7:]
-            target_m7 = 'function m7({count:e,hint:t,title:n}){'
-            replacement_m7 = 'function m7({count:e,hint:t,title:n}){n=_trSectionTitle(n);'
-            if target_m7 in js_content:
-                js_content = js_content.replace(target_m7, replacement_m7, 1)
-            target_v7 = 'function V7({actions:e,count:t,title:n}){'
-            replacement_v7 = 'function V7({actions:e,count:t,title:n}){n=_trSectionTitle(n);'
-            if target_v7 in js_content:
-                js_content = js_content.replace(target_v7, replacement_v7, 1)
+        section_title_helper = (
+            'const TR_SEC_TITLES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle",'
+            '"Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi",'
+            '"Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü",'
+            '"Document Skills":"Belge Becerileri","Browser Use":"Browser Use","Computer Use":"Bilgisayar Kontrolü"};'
+            'function _trSectionTitle(n){return TR_SEC_TITLES[n]||n};'
+        )
+        m1 = re.search(r"function\s+(\w+)\(\{count:e,hint:t,title:n\}\)\{", js_content)
+        m2 = re.search(r"function\s+(\w+)\(\{actions:e,count:t,title:n\}\)\{", js_content)
+        if m1:
+            js_content = js_content[:m1.start()] + section_title_helper + js_content[m1.start():]
+            js_content = re.sub(r"function\s+(\w+)\(\{count:e,hint:t,title:n\}\)\{", r"function \1({count:e,hint:t,title:n}){n=_trSectionTitle(n);", js_content, count=1)
+        if m2:
+            js_content = re.sub(r"function\s+(\w+)\(\{actions:e,count:t,title:n\}\)\{", r"function \1({actions:e,count:t,title:n}){n=_trSectionTitle(n);", js_content, count=1)
 
     # Skills and Commands helpers injection
     if "function _trSkillDesc(" not in js_content:
@@ -623,13 +661,16 @@ def patch_styles(js_content):
             'if(t.includes("[agent/workspace/session filters]"))return t.replace("[agent/workspace/session filters]","[ajan/çalışma alanı/oturum filtreleri]");'
             'return h};'
         )
-        pos_qut = js_content.find("function qUt(")
-        if pos_qut != -1:
-            js_content = js_content[:pos_qut] + skill_cmd_helpers + js_content[pos_qut:]
-            target_skill_card = f'children:e.description||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
+        target_skill_card = f'children:e.description||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
+        if target_skill_card in js_content:
+            pos_sc = js_content.rfind("function ", 0, js_content.find(target_skill_card))
+            if pos_sc != -1:
+                js_content = js_content[:pos_sc] + skill_cmd_helpers + js_content[pos_sc:]
+            else:
+                js_content = skill_cmd_helpers + js_content
+
             replacement_skill_card = f'children:_trSkillDesc(e)||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
-            if target_skill_card in js_content:
-                js_content = js_content.replace(target_skill_card, replacement_skill_card, 1)
+            js_content = js_content.replace(target_skill_card, replacement_skill_card, 1)
 
             target_skill_modal = f'children:Ae.description||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
             replacement_skill_modal = f'children:_trSkillDesc(Ae)||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
@@ -646,29 +687,14 @@ def patch_styles(js_content):
             if target_cmd_hint in js_content:
                 js_content = js_content.replace(target_cmd_hint, replacement_cmd_hint, 1)
 
-    # Plugin settings row cWt helpers and replacements
-    if "function _trPluginDescRow(" not in js_content:
-        pos_cwt = js_content.find("function cWt(")
-        if pos_cwt != -1:
-            plugin_row_helpers = (
-                'function _trPluginDescRow(e){if(!e)return"";let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
-                'if(typeof TR_P_DESCS!=="undefined"){if(TR_P_DESCS[b])return TR_P_DESCS[b];if(TR_P_DESCS[n])return TR_P_DESCS[n]};'
-                'return e.description||""};'
-                'function _trPluginNameRow(e,fallback){if(!e)return fallback;let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
-                'if(typeof TR_P_NAMES!=="undefined"){if(TR_P_NAMES[b])return TR_P_NAMES[b];if(TR_P_NAMES[n])return TR_P_NAMES[n]};'
-                'return fallback};'
-            )
-            js_content = js_content[:pos_cwt] + plugin_row_helpers + js_content[pos_cwt:]
+    # Plugin settings row helpers and replacements
+    target_plugin_name = 'children:si(e.name,m)}'
+    if target_plugin_name in js_content:
+        js_content = js_content.replace(target_plugin_name, 'children:_trPluginNameRow(e,si(e.name,m))}', 1)
 
-            target_plugin_name = 'children:si(e.name,m)}'
-            replacement_plugin_name = 'children:_trPluginNameRow(e,si(e.name,m))}'
-            if target_plugin_name in js_content:
-                js_content = js_content.replace(target_plugin_name, replacement_plugin_name, 1)
-
-            target_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:e.description}}):null'
-            replacement_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:_trPluginDescRow(e)}}):null'
-            if target_plugin_desc in js_content:
-                js_content = js_content.replace(target_plugin_desc, replacement_plugin_desc, 1)
+    target_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:e.description}}):null'
+    if target_plugin_desc in js_content:
+        js_content = js_content.replace(target_plugin_desc, f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:_trPluginDescRow(e)}}):null', 1)
 
     return js_content
 

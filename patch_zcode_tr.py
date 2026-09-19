@@ -1,13 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-ZCode Türkçe Yama Motoru (patch_zcode_tr.py)
----------------------------------------------
-ZCode'un app.asar arşivini dinamik olarak ayrıştırır,
-Türkçe dil sözlüğünü enjekte eder, masaüstü menülerini,
-webview çeviricisini ve sistem ayarlarını yamalar,
-JavaScript sözdizimini doğrular ve yeni arşivi güvenle üretir.
-"""
-
 import json
 import os
 import re
@@ -17,23 +8,13 @@ import subprocess
 import sys
 import time
 
-# Windows UTF-8 Konsol Ayarı
-if sys.platform == "win32":
-    try:
-        os.system("chcp 65001 >nul")
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
+sys.stdout.reconfigure(encoding="utf-8")
 
 BASE_DIR = r"C:\Users\Work-D\ZCodeProject"
 ZCODE_RESOURCES = r"C:\Program Files\ZCode\resources"
-ORIG_ASAR = os.path.join(ZCODE_RESOURCES, "app.asar")
-ROLLBACK_DIR = os.path.join(BASE_DIR, "deploy-rollback")
-BACKUP_ASAR = os.path.join(ROLLBACK_DIR, "app.asar.orig")
+ORIG_ASAR = os.path.join(ZCODE_RESOURCES, "app.asar.orig") if os.path.exists(os.path.join(ZCODE_RESOURCES, "app.asar.orig")) else os.path.join(ZCODE_RESOURCES, "app.asar")
 PATCHED_ASAR = os.path.join(BASE_DIR, "app.asar.patched")
-STAGED_DIR = os.path.join(BASE_DIR, "ceviri-son-hali")
-DICTIONARY_FILE = os.path.join(BASE_DIR, "tr_dictionary_zcode.json")
+DICT_PATH = os.path.join(BASE_DIR, "tr_dictionary_zcode.json")
 
 MENU_TR_V2 = {
     "titleBar.menu.file": "Dosya",
@@ -88,18 +69,15 @@ MENU_TR_V2 = {
     "tray.menu.quit": "Çıkış"
 }
 
-
 def parse_asar_header(f):
-    """ASAR dosyasının 16 baytlık başlığını ve JSON dosya ağacını okur."""
-    f.seek(0)
-    magic, str_len, u2, json_len = struct.unpack("<IIII", f.read(16))
-    if magic != 4:
-        raise ValueError(f"Geçersiz ASAR formatı! Magic={magic}")
+    header_raw = f.read(16)
+    if len(header_raw) < 16:
+        raise ValueError("Geçersiz ASAR başlığı")
+    u1, str_len, u2, json_len = struct.unpack("<IIII", header_raw)
     json_bytes = f.read(json_len)
     header = json.loads(json_bytes.decode("utf-8"))
     base_offset = 8 + str_len
     return header, base_offset, str_len
-
 
 def find_node(header_json, path_parts):
     node = header_json
@@ -109,16 +87,13 @@ def find_node(header_json, path_parts):
         node = node["files"][part]
     return node
 
-
 def extract_file(f_src, node, base_offset):
     offset = int(node["offset"])
     size = int(node["size"])
     f_src.seek(base_offset + offset)
     return f_src.read(size)
 
-
 def find_target_paths(header, f_src, base_offset):
-    """Vite build hash değişikliklerine karşı bundle dosyalarını dinamik tespit eder."""
     renderer_assets = header.get("files", {}).get("out", {}).get("files", {}).get("renderer", {}).get("files", {}).get("assets", {}).get("files", {})
     main_files = header.get("files", {}).get("out", {}).get("files", {}).get("main", {}).get("files", {})
 
@@ -163,7 +138,6 @@ def find_target_paths(header, f_src, base_offset):
         "html": ["out", "renderer", "index.html"],
     }
 
-
 def patch_intl(js_content, tr_dict):
     tr_json = json.dumps(tr_dict, ensure_ascii=False)
     replacement = f'g={{"zh-CN":p,"en-US":Object.assign({{}},m,{tr_json})}}'
@@ -180,8 +154,20 @@ def patch_intl(js_content, tr_dict):
         return js_content[:pos_g] + replacement + js_content[pos_g + len(target):]
     return js_content
 
-
 def patch_menu(js_content):
+    m = re.search(r'(\w+)=(\{"zh-CN":\{"titleBar\.menu\.file":.*?\}\});function\s+', js_content)
+    if m:
+        var_name = m.group(1)
+        json_str = m.group(2)
+        kp_data = json.loads(json_str)
+        for k, v in MENU_TR_V2.items():
+            if "en-US" in kp_data:
+                kp_data["en-US"][k] = v
+            if "zh-CN" in kp_data:
+                kp_data["zh-CN"][k] = v
+        new_kp_json = json.dumps(kp_data, ensure_ascii=False)
+        return js_content[:m.start()] + f"{var_name}={new_kp_json};function " + js_content[m.end():]
+
     pos_kp = js_content.find('Kp={"zh-CN":')
     if pos_kp != -1:
         pos_end_kp = js_content.find('};function db(', pos_kp)
@@ -211,7 +197,6 @@ def patch_menu(js_content):
             except Exception:
                 pass
     return js_content
-
 
 def patch_styles(js_content):
     pos_sb = js_content.find('const styleId = "zcode-coding-plan-hide-scrollbar";')
@@ -465,18 +450,30 @@ def patch_styles(js_content):
 
         js_content = js_content[:pos_fn_start] + fn_sig + new_fn_body + js_content[pos_fn_end:]
 
-    # Webview navigation hook to re-run nMe() on page finish or navigation
-    target_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e)},i=()=>{j(e)}'
-    replacement_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})},i=()=>{j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})}'
-    if target_r_i in js_content:
-        js_content = js_content.replace(target_r_i, replacement_r_i, 1)
+    # Webview navigation hook to re-run style injection on page finish or navigation
+    pat_ri = r"r=\(\)=>\{(\w+)\(e=>\(\{\.\.\.e,isLoading:!1\}\)\),(\w+)\(e\)\},i=\(\)=>\{(\w+)\(e\)\}"
+    m_ri = re.search(pat_ri, js_content)
+    if m_ri:
+        style_fn_m = re.search(r"function\s+(\w+)\(\)\{return`\(\(\)\s*=>\s*\{\s*const styleId =", js_content)
+        style_fn_name = style_fn_m.group(1) if style_fn_m else "Y1e"
+        repl_ri = f"r=()=>{{{m_ri.group(1)}(e=>({{...e,isLoading:!1}})),{m_ri.group(2)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}},i=()=>{{{m_ri.group(3)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}}"
+        js_content = js_content.replace(m_ri.group(0), repl_ri, 1)
+    else:
+        target_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e)},i=()=>{j(e)}'
+        replacement_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})},i=()=>{j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})}'
+        if target_r_i in js_content:
+            js_content = js_content.replace(target_r_i, replacement_r_i, 1)
 
     # Skill description regex
     skill_pattern = r'function\s+(\w+)\(e,t\)\{return\((\w+)\(e\)\?(\w+)\[e\.name\]\?\.\[t\?\?`en-US`\]:void 0\)\?\?e\.description\}'
     js_content = re.sub(skill_pattern, r'function \1(e,t){return e.description||(\2(e)?\3[e.name]?.[t??`en-US`]:void 0)}', js_content)
 
-    # Date format
+    # Date formats (short date and updater release date)
     js_content = js_content.replace("Intl.DateTimeFormat(t,{day:`numeric`,month:`short`", 'Intl.DateTimeFormat("tr-TR",{day:`numeric`,month:`short`')
+    target_tqt = "new Intl.DateTimeFormat(t,{year:`numeric`,month:`long`,day:`numeric`,timeZone:`UTC`}).format(n)"
+    replacement_tqt = 'new Intl.DateTimeFormat("tr-TR",{year:`numeric`,month:`long`,day:`numeric`,timeZone:`UTC`}).format(n)'
+    if target_tqt in js_content:
+        js_content = js_content.replace(target_tqt, replacement_tqt, 1)
 
     # Computer use labels
     js_content = js_content.replace("title:`Computer Use`", "title:`Bilgisayar Kontrolü`")
@@ -510,18 +507,75 @@ def patch_styles(js_content):
     )
     js_content = re.sub(e4_pattern, e4_replacement, js_content)
 
-    # Plugin marketplace card titles and descriptions m4/h4 replacement
-    m4_target = "function m4(e,t){return Dn(e,t)}function h4(e,t){return pne(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n)}"
-    m4_replacement = (
-        'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emülatörü","ios-simulator":"iOS Simülatörü","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","zcode-cua":"Bilgisayar Kontrolü","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri"};'
-        'const TR_P_DESCS={"browser-use":"Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik.","computer-use":"Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin.","document-skills":"Yerleşik DOCX ve PDF belge oluşturma becerileri.","dingtalk-cli":"OAuth/cihaz yetkilendirmesi, profil kontrolleri ve yeteneklerle DingTalk Çalışma Alanı CLI iş akışları.","lark-cli":"Belgeler, tablolar, Base, takvim ve mesajlaşma için rehberli kurulum ve OAuth girişli Lark CLI iş akışları.","obsidian":"Obsidian Markdown notları, Bases veritabanı görünümleri, Canvas panoları, CLI otomasyonu ve görselleştirme becerileri.","alibaba-cloud-cli":"Kimlik bilgisi kurulumu, profil kontrolleri ve güvenli bulut kaynak işlemleri için Alibaba Cloud CLI iş akışları.","android-emulator":"Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları.","ios-simulator":"iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları.","skill-creator":"Yeni ajan becerileri ve iş akışları oluşturmak için rehberli araç seti.","restore-legacy-sessions":"Önceki sürümlerden kalan eski oturumları ve sohbet geçmişlerini geri yükleyin.","zcode-guide":"ZCode özellikleri, komutları ve yapılandırmaları için kapsamlı kullanım kılavuzu.","video-agent-kit":"Otomatik video düzenleme araç seti: Bulut ses transkripsiyonu ve sentezi, kare analizi, zaman çizelgesi ve önizleme.","video2code":"ZCode yerleşik Browser Use WebView ile WebM kaydı ve ffmpeg ile MP4 dönüştürme/yeniden oluşturma.","cloudbase-skills":"Web, WeChat Mini Programı, veritabanı, bulut fonksiyonları ve yapay zeka projeleri için CloudBase geliştirme becerileri ve MCP entegrasyonu.","mimosa":"ZCode için yazma öncesi kancalar, tur sonu incelemesi, Git kapıları ve güvenlik taraması becerisiyle yerel öncelikli güvenlik koruması.","github":"Commit, pull request, issue, release, Actions ve repolar için GitHub CLI iş akışları.","gitlab":"Merge request, issue, CI/CD ve repolar için GitLab resmi ajan becerilerine dayalı GitLab CLI iş akışları.","tencent-meeting-cli":"OAuth2 kurulumu, toplantı yönetimi, kayıtlar ve katılımcı raporlarıyla Tencent Meeting CLI iş akışları.","wecom-cli":"Mesajlar, belgeler, tablolar, takvim, toplantılar ve kişiler için QR doğrulamalı WeCom CLI iş akışları.","accounting-and-reporting":"Şirket defterinden muhasebe kapanışı ve yasal raporlama: ay sonu kontrolleri ve mutabakat.","assess-credit":"Sabit getirili menkul kıymetler ve kredi araştırması: tahvil profilleri, ihraççı değerlendirmesi ve getiri eğrisi analizi.","find-clients":"Kurumsal bankacılık müşteri kazanımı: bölgeye ve sektöre göre potansiyel müşteri taraması ve fırsat analizi.","model-deals":"İşlem yapılandırma ve modelleme: M&A, IPO ve sermaye artırımı seyreltme analizi.","pick-funds":"Fon ve fon yöneticisi araştırması: çok kriterli fon taraması, portföy ve stil analizi.","read-macro":"Yukarıdan aşağıya makro strateji: büyüme, enflasyon, likidite ve çapraz varlık dağılım görünümleri.","run-fpa":"Kurumsal finansman ve FP&A: yönetim raporlaması, nakit akışı tahminleri ve bütçe-gerçekleşen varyans analizi.","vet-companies":"Karşı taraf ve şirket durum tespiti: yapılandırılmış DD raporları, tedarik zinciri haritalama ve risk taraması.","watch-positions":"İzleme listesi ve portföy takibi: kapanış sonrası özetler, pozisyon olay uyarıları ve gün içi hareket analizi.","write-research":"Uçtan uca yatırım araştırma raporları, sektör analizi, kazanç güncellemeleri ve değerleme modelleri.","hexin":"RoyalFlush iFinD hisse senedi, küresel hisseler, endeks, fon ve tahvil verileri için MCP hizmetleri.","wind":"Wind hisse senedi, küresel hisseler, endeks, fon, tahvil, ekonomik ve doküman verileri için MCP hizmetleri.","tianyancha":"Tianyancha şirket bilgileri sorguları için MCP hizmeti.","finance-search":"SEC EDGAR dosyalama araması ve finansal web/haber aramaları için MCP hizmetleri."};'
-        'function m4(e,t){let k=(e&&(e.name||e.id||(e.listing&&e.listing.displayName)))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_NAMES[base])return TR_P_NAMES[base];if(TR_P_NAMES[k])return TR_P_NAMES[k];let res=Dn(e,t);if(TR_P_NAMES[res])return TR_P_NAMES[res];return res}'
-        'function h4(e,t){let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res=pne(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}return res}'
-    )
-    if m4_target in js_content:
-        js_content = js_content.replace(m4_target, m4_replacement, 1)
+    # Plugin marketplace card titles and descriptions
+    official_p_descs = {
+        "browser-use": "Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik.",
+        "computer-use": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin.",
+        "document-skills": "Yerleşik DOCX ve PDF belge oluşturma becerileri.",
+        "dingtalk-cli": "OAuth/cihaz yetkilendirmesi, profil kontrolleri ve yeteneklerle DingTalk Çalışma Alanı CLI iş akışları.",
+        "lark-cli": "Belgeler, tablolar, Base, takvim ve mesajlaşma için rehberli kurulum ve OAuth girişli Lark CLI iş akışları.",
+        "obsidian": "Obsidian Markdown notları, Bases veritabanı görünümleri, Canvas panoları, CLI otomasyonu ve görselleştirme becerileri.",
+        "alibaba-cloud-cli": "Kimlik bilgisi kurulumu, profil kontrolleri ve güvenli bulut kaynak işlemleri için Alibaba Cloud CLI iş akışları.",
+        "android-emulator": "Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları.",
+        "ios-simulator": "iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları.",
+        "skill-creator": "Yeni ajan becerileri ve iş akışları oluşturmak için rehberli araç seti.",
+        "restore-legacy-sessions": "Önceki sürümlerden kalan eski oturumları ve sohbet geçmişlerini geri yükleyin.",
+        "zcode-guide": "ZCode özellikleri, komutları ve yapılandırmaları için kapsamlı kullanım kılavuzu.",
+        "video-agent-kit": "Otomatik video düzenleme araç seti: Bulut ses transkripsiyonu ve sentezi, kare analizi, zaman çizelgesi ve önizleme.",
+        "video2code": "ZCode yerleşik Browser Use WebView ile WebM kaydı ve ffmpeg ile MP4 dönüştürme/yeniden oluşturma.",
+        "cloudbase-skills": "Web, WeChat Mini Programı, veritabanı, bulut fonksiyonları ve yapay zeka projeleri için CloudBase geliştirme becerileri ve MCP entegrasyonu.",
+        "mimosa": "ZCode için yazma öncesi kancalar, tur sonu incelemesi, Git kapıları ve güvenlik taraması becerisiyle yerel öncelikli güvenlik koruması.",
+        "github": "Commit, pull request, issue, release, Actions ve repolar için GitHub CLI iş akışları.",
+        "gitlab": "Merge request, issue, CI/CD ve repolar için GitLab resmi ajan becerilerine dayalı GitLab CLI iş akışları.",
+        "tencent-meeting-cli": "OAuth2 kurulumu, toplantı yönetimi, kayıtlar ve katılımcı raporlarıyla Tencent Meeting CLI iş akışları.",
+        "wecom-cli": "Mesajlar, belgeler, tablolar, takvim, toplantılar ve kişiler için QR doğrulamalı WeCom CLI iş akışları.",
+        "accounting-and-reporting": "Şirket defterinden muhasebe kapanışı ve yasal raporlama: ay sonu kontrolleri ve mutabakat.",
+        "assess-credit": "Sabit getirili menkul kıymetler ve kredi araştırması: tahvil profilleri, ihraççı değerlendirmesi ve getiri eğrisi analizi.",
+        "find-clients": "Kurumsal bankacılık müşteri kazanımı: bölgeye ve sektöre göre potansiyel müşteri taraması ve fırsat analizi.",
+        "model-deals": "İşlem yapılandırma ve modelleme: M&A, IPO ve sermaye artırımı seyreltme analizi.",
+        "pick-funds": "Fon ve fon yöneticisi araştırması: çok kriterli fon taraması, portföy ve stil analizi.",
+        "read-macro": "Yukarıdan aşağıya makro strateji: büyüme, enflasyon, likidite ve çapraz varlık dağılım görünümleri.",
+        "run-fpa": "Kurumsal finansman ve FP&A: yönetim raporlaması, nakit akışı tahminleri ve bütçe-gerçekleşen varyans analizi.",
+        "vet-companies": "Karşı taraf ve şirket durum tespiti: yapılandırılmış DD raporları, tedarik zinciri haritalama ve risk taraması.",
+        "watch-positions": "İzleme listesi ve portföy takibi: kapanış sonrası özetler, pozisyon olay uyarıları ve gün içi hareket analizi.",
+        "write-research": "Uçtan uca yatırım araştırma raporları, sektör analizi, kazanç güncellemeleri ve değerleme modelleri.",
+        "hexin": "RoyalFlush iFinD hisse senedi, küresel hisseler, endeks, fon ve tahvil verileri için MCP hizmetleri.",
+        "wind": "Wind hisse senedi, küresel hisseler, endeks, fon, tahvil, ekonomik ve doküman verileri için MCP hizmetleri.",
+        "tianyancha": "Tianyancha şirket bilgileri sorguları için MCP hizmeti.",
+        "finance-search": "SEC EDGAR dosyalama araması ve finansal web/haber aramaları için MCP hizmetleri."
+    }
+    claude_tr_file = os.path.join(BASE_DIR, "claude_plugins_tr.json")
+    if os.path.exists(claude_tr_file):
+        with open(claude_tr_file, "r", encoding="utf-8") as _cf:
+            official_p_descs.update(json.load(_cf))
+    tr_p_descs_json = json.dumps(official_p_descs, ensure_ascii=False)
 
-    # Subagents descriptions MHt replacement
+    plugin_row_helpers = (
+        'function _trPluginDescRow(e){if(!e)return"";let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
+        'if(typeof TR_P_DESCS!=="undefined"){if(TR_P_DESCS[b])return TR_P_DESCS[b];if(TR_P_DESCS[n])return TR_P_DESCS[n]};'
+        'return e.description||""};'
+        'function _trPluginNameRow(e,fallback){if(!e)return fallback;let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
+        'if(typeof TR_P_NAMES!=="undefined"){if(TR_P_NAMES[b])return TR_P_NAMES[b];if(TR_P_NAMES[n])return TR_P_NAMES[n]};'
+        'return fallback};'
+    )
+
+    pat_m4 = r"function\s+(\w+)\(e,t\)\{return\s+(\w+)\(e,t\)\}function\s+(\w+)\(e,t\)\{return\s+(\w+)\(t,e\.summary\?\.description\?\?e\.info\?\.description\?\?e\.installedMeta\?\.description,e\.listing\?\.descriptionI18n\)\}"
+    m_m4 = re.search(pat_m4, js_content)
+    if m_m4:
+        fn_m4 = m_m4.group(1)
+        fn_dn = m_m4.group(2)
+        fn_h4 = m_m4.group(3)
+        fn_pne = m_m4.group(4)
+        m4_replacement = (
+            'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emülatörü","ios-simulator":"iOS Simülatörü","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","zcode-cua":"Bilgisayar Kontrolü","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri"};'
+            f'const TR_P_DESCS={tr_p_descs_json};'
+            f'{plugin_row_helpers}'
+            f'function {fn_m4}(e,t){{let k=(e&&(e.name||e.id||(e.listing&&e.listing.displayName)))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_NAMES[base])return TR_P_NAMES[base];if(TR_P_NAMES[k])return TR_P_NAMES[k];let res={fn_dn}(e,t);if(TR_P_NAMES[res])return TR_P_NAMES[res];return res}}'
+            f'function {fn_h4}(e,t){{let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res={fn_pne}(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){{if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}}return res}}'
+        )
+        js_content = js_content.replace(m_m4.group(0), m4_replacement, 1)
+
+    # Subagents descriptions replacement
     if "function _trAgentDesc(" not in js_content:
         subagent_helpers = (
             'const TR_AGENT_DESCS={"general-purpose":"Karmaşık soruları araştırmak, kod aramak ve çok adımlı görevleri yürütmek için genel amaçlı ajan.",'
@@ -536,34 +590,32 @@ def patch_styles(js_content):
             'if(d.startsWith("THE single visual acceptance pass")||d.startsWith("THE single visual acceptance"))return TR_AGENT_DESCS["judge"]}'
             'return d};'
         )
-        pos_mht = js_content.find('function MHt(')
-        if pos_mht != -1:
-            js_content = js_content[:pos_mht] + subagent_helpers + js_content[pos_mht:]
-            target_sub = f'children:e.description||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
-            replacement_sub = f'children:_trAgentDesc(e)||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
-            if target_sub in js_content:
-                js_content = js_content.replace(target_sub, replacement_sub, 1)
+        target_sub = f'children:e.description||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
+        replacement_sub = f'children:_trAgentDesc(e)||d.formatMessage({{id:{bt}settings.subagents.noDescription{bt}}})'
+        if target_sub in js_content:
+            pos_fn = js_content.rfind("function ", 0, js_content.find(target_sub))
+            if pos_fn != -1:
+                js_content = js_content[:pos_fn] + subagent_helpers + js_content[pos_fn:]
+            else:
+                js_content = subagent_helpers + js_content
+            js_content = js_content.replace(target_sub, replacement_sub, 1)
 
-    # Section titles helper and V7, m7 injection
+    # Section titles helper injection
     if "function _trSectionTitle(" not in js_content:
-        pos_m7 = js_content.find("function m7(")
-        if pos_m7 != -1:
-            section_title_helper = (
-                'const TR_SEC_TITLES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle",'
-                '"Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi",'
-                '"Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü",'
-                '"Document Skills":"Belge Becerileri","Browser Use":"Browser Use","Computer Use":"Bilgisayar Kontrolü"};'
-                'function _trSectionTitle(n){return TR_SEC_TITLES[n]||n};'
-            )
-            js_content = js_content[:pos_m7] + section_title_helper + js_content[pos_m7:]
-            target_m7 = 'function m7({count:e,hint:t,title:n}){'
-            replacement_m7 = 'function m7({count:e,hint:t,title:n}){n=_trSectionTitle(n);'
-            if target_m7 in js_content:
-                js_content = js_content.replace(target_m7, replacement_m7, 1)
-            target_v7 = 'function V7({actions:e,count:t,title:n}){'
-            replacement_v7 = 'function V7({actions:e,count:t,title:n}){n=_trSectionTitle(n);'
-            if target_v7 in js_content:
-                js_content = js_content.replace(target_v7, replacement_v7, 1)
+        section_title_helper = (
+            'const TR_SEC_TITLES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle",'
+            '"Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi",'
+            '"Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü",'
+            '"Document Skills":"Belge Becerileri","Browser Use":"Browser Use","Computer Use":"Bilgisayar Kontrolü"};'
+            'function _trSectionTitle(n){return TR_SEC_TITLES[n]||n};'
+        )
+        m1 = re.search(r"function\s+(\w+)\(\{count:e,hint:t,title:n\}\)\{", js_content)
+        m2 = re.search(r"function\s+(\w+)\(\{actions:e,count:t,title:n\}\)\{", js_content)
+        if m1:
+            js_content = js_content[:m1.start()] + section_title_helper + js_content[m1.start():]
+            js_content = re.sub(r"function\s+(\w+)\(\{count:e,hint:t,title:n\}\)\{", r"function \1({count:e,hint:t,title:n}){n=_trSectionTitle(n);", js_content, count=1)
+        if m2:
+            js_content = re.sub(r"function\s+(\w+)\(\{actions:e,count:t,title:n\}\)\{", r"function \1({actions:e,count:t,title:n}){n=_trSectionTitle(n);", js_content, count=1)
 
     # Skills and Commands helpers injection
     if "function _trSkillDesc(" not in js_content:
@@ -609,13 +661,16 @@ def patch_styles(js_content):
             'if(t.includes("[agent/workspace/session filters]"))return t.replace("[agent/workspace/session filters]","[ajan/çalışma alanı/oturum filtreleri]");'
             'return h};'
         )
-        pos_qut = js_content.find("function qUt(")
-        if pos_qut != -1:
-            js_content = js_content[:pos_qut] + skill_cmd_helpers + js_content[pos_qut:]
-            target_skill_card = f'children:e.description||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
+        target_skill_card = f'children:e.description||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
+        if target_skill_card in js_content:
+            pos_sc = js_content.rfind("function ", 0, js_content.find(target_skill_card))
+            if pos_sc != -1:
+                js_content = js_content[:pos_sc] + skill_cmd_helpers + js_content[pos_sc:]
+            else:
+                js_content = skill_cmd_helpers + js_content
+
             replacement_skill_card = f'children:_trSkillDesc(e)||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
-            if target_skill_card in js_content:
-                js_content = js_content.replace(target_skill_card, replacement_skill_card, 1)
+            js_content = js_content.replace(target_skill_card, replacement_skill_card, 1)
 
             target_skill_modal = f'children:Ae.description||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
             replacement_skill_modal = f'children:_trSkillDesc(Ae)||p.formatMessage({{id:{bt}settings.skills.noDescription{bt}}})'
@@ -632,29 +687,14 @@ def patch_styles(js_content):
             if target_cmd_hint in js_content:
                 js_content = js_content.replace(target_cmd_hint, replacement_cmd_hint, 1)
 
-    # Plugin settings row cWt helpers and replacements
-    if "function _trPluginDescRow(" not in js_content:
-        pos_cwt = js_content.find("function cWt(")
-        if pos_cwt != -1:
-            plugin_row_helpers = (
-                'function _trPluginDescRow(e){if(!e)return"";let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
-                'if(typeof TR_P_DESCS!=="undefined"){if(TR_P_DESCS[b])return TR_P_DESCS[b];if(TR_P_DESCS[n])return TR_P_DESCS[n]};'
-                'return e.description||""};'
-                'function _trPluginNameRow(e,fallback){if(!e)return fallback;let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
-                'if(typeof TR_P_NAMES!=="undefined"){if(TR_P_NAMES[b])return TR_P_NAMES[b];if(TR_P_NAMES[n])return TR_P_NAMES[n]};'
-                'return fallback};'
-            )
-            js_content = js_content[:pos_cwt] + plugin_row_helpers + js_content[pos_cwt:]
+    # Plugin settings row helpers and replacements
+    target_plugin_name = 'children:si(e.name,m)}'
+    if target_plugin_name in js_content:
+        js_content = js_content.replace(target_plugin_name, 'children:_trPluginNameRow(e,si(e.name,m))}', 1)
 
-            target_plugin_name = 'children:si(e.name,m)}'
-            replacement_plugin_name = 'children:_trPluginNameRow(e,si(e.name,m))}'
-            if target_plugin_name in js_content:
-                js_content = js_content.replace(target_plugin_name, replacement_plugin_name, 1)
-
-            target_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:e.description}}):null'
-            replacement_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:_trPluginDescRow(e)}}):null'
-            if target_plugin_desc in js_content:
-                js_content = js_content.replace(target_plugin_desc, replacement_plugin_desc, 1)
+    target_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:e.description}}):null'
+    if target_plugin_desc in js_content:
+        js_content = js_content.replace(target_plugin_desc, f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:_trPluginDescRow(e)}}):null', 1)
 
     return js_content
 
@@ -665,12 +705,10 @@ def patch_usage_parts(js_content):
     js_content = js_content.replace('NumberFormat(e||void 0,', 'NumberFormat("tr-TR",')
     return js_content
 
-
 def patch_main(js_content):
     js_content = js_content.replace("\\u8D44\\u6E90\\u7BA1\\u7406\\u5668", "Dosya Gezgini")
     js_content = js_content.replace("资源管理器", "Dosya Gezgini")
     return js_content
-
 
 def patch_html(html_content):
     if "zcode-tr-dom-patch" in html_content:
@@ -915,8 +953,7 @@ def patch_html(html_content):
 
 
 def rebuild_asar(source_asar_path, dest_asar_path, modified_files_map):
-    print("Yeni app.asar derleniyor...")
-    t0 = time.time()
+    print("Rebuilding ASAR...")
     with open(source_asar_path, "rb") as f_src:
         header, base_offset, str_len = parse_asar_header(f_src)
 
@@ -967,36 +1004,19 @@ def rebuild_asar(source_asar_path, dest_asar_path, modified_files_map):
             f_out.write(padded_json_bytes)
             f_out.write(new_payload)
 
-        print(f"ASAR başarıyla derlendi: {dest_asar_path} ({os.path.getsize(dest_asar_path)} bayt, {time.time() - t0:.2f} sn)")
-
+        print(f"ASAR rebuilt successfully: {dest_asar_path} ({os.path.getsize(dest_asar_path)} bytes)")
 
 def main():
-    print("=" * 60)
-    print("ZCode Türkçe Yama Motoru (patch_zcode_tr.py)")
-    print("=" * 60)
-
-    # 1. Sözlük Kontrolü
-    if not os.path.exists(DICTIONARY_FILE):
-        print(f"HATA: Sözlük dosyası bulunamadı: {DICTIONARY_FILE}")
-        sys.exit(1)
-
-    with open(DICTIONARY_FILE, "r", encoding="utf-8") as f:
+    print("Reading original ASAR and dictionary...")
+    with open(DICT_PATH, "r", encoding="utf-8") as f:
         tr_dict = json.load(f)
-    print(f"Yüklenen Türkçe Sözlük: {len(tr_dict)} anahtar")
 
-    # 2. Kaynak ASAR Belirleme
-    source_asar = ORIG_ASAR
-    if not os.path.exists(source_asar):
-        print(f"HATA: ZCode app.asar bulunamadı: {source_asar}")
-        sys.exit(1)
-
-    # 3. ASAR Ayrıştırma & Dinamik Hedef Tespiti
-    with open(source_asar, "rb") as f_src:
+    with open(ORIG_ASAR, "rb") as f_src:
         header, base_offset, str_len = parse_asar_header(f_src)
         targets = find_target_paths(header, f_src, base_offset)
-        print("Dinamik Hedefler Tespit Edildi:")
+        print("Dynamic targets identified:")
         for k, v in targets.items():
-            print(f"  [{k}] -> {'/'.join(v)}")
+            print(f"  {k}: {'/'.join(v)}")
 
         intl_orig = extract_file(f_src, find_node(header, targets["intl"]), base_offset).decode("utf-8")
         styles_orig = extract_file(f_src, find_node(header, targets["styles"]), base_offset).decode("utf-8")
@@ -1005,8 +1025,7 @@ def main():
         main_orig = extract_file(f_src, find_node(header, targets["main"]), base_offset).decode("utf-8")
         html_orig = extract_file(f_src, find_node(header, targets["html"]), base_offset).decode("utf-8")
 
-    # 4. Bellekte Yamalama
-    print("Yamalar belleğe uygulanıyor...")
+    print("Applying patches in memory...")
     intl_patched = patch_intl(intl_orig, tr_dict)
     styles_patched = patch_styles(styles_orig)
     usage_patched = patch_usage_parts(usage_orig)
@@ -1014,27 +1033,6 @@ def main():
     main_patched = patch_main(main_orig)
     html_patched = patch_html(html_orig)
 
-    # 5. Sözdizimi Doğrulama
-    test_dir = os.path.join(BASE_DIR, "test_patches")
-    os.makedirs(test_dir, exist_ok=True)
-    temp_files = {
-        "intl.js": intl_patched,
-        "styles.js": styles_patched,
-        "usage.js": usage_patched,
-        "menu.js": menu_patched,
-    }
-    for name, content in temp_files.items():
-        fp = os.path.join(test_dir, name)
-        with open(fp, "w", encoding="utf-8") as f_out:
-            f_out.write(content)
-        res = subprocess.run(["node", "-c", fp], capture_output=True)
-        if res.returncode != 0:
-            err = res.stderr.decode("utf-8", errors="ignore")
-            print(f"HATA: {name} sözdizimi doğrulanamadı:\n{err}")
-            sys.exit(1)
-    print("Tüm JavaScript bileşenlerinin sözdizimi başarıyla doğrulandı (node -c [OK])")
-
-    # 6. ASAR Paketini Yeniden Üret
     modified_files = {
         "/".join(targets["intl"]): intl_patched.encode("utf-8"),
         "/".join(targets["styles"]): styles_patched.encode("utf-8"),
@@ -1044,22 +1042,20 @@ def main():
         "/".join(targets["html"]): html_patched.encode("utf-8"),
     }
 
-    rebuild_asar(source_asar, PATCHED_ASAR, modified_files)
+    rebuild_asar(ORIG_ASAR, PATCHED_ASAR, modified_files)
 
-    # 7. Doğrulama
-    print("ASAR bütünlüğü doğrulanıyor...")
-    with open(PATCHED_ASAR, "rb") as f_chk:
-        h_chk, b_chk, s_chk = parse_asar_header(f_chk)
+    print("\nVerifying rebuilt ASAR by reading back modified files...")
+    with open(PATCHED_ASAR, "rb") as f_check:
+        h_check, b_check, s_check = parse_asar_header(f_check)
         for k, v in targets.items():
-            node = find_node(h_chk, v)
-            if not node:
-                raise RuntimeError(f"{'/'.join(v)} yeni arşivde bulunamadı!")
-            data = extract_file(f_chk, node, b_chk)
-            if len(data) != len(modified_files["/".join(v)]):
-                raise RuntimeError(f"{'/'.join(v)} boyut uyumsuzluğu!")
+            p_str = "/".join(v)
+            node = find_node(h_check, v)
+            assert node is not None, f"Node {p_str} not found in check!"
+            data = extract_file(f_check, node, b_check)
+            assert len(data) == len(modified_files[p_str]), f"Size mismatch for {p_str}"
+            print(f"  Verified {k}: {len(data)} bytes")
 
-    print("\n✅ ASAR PAKETİ VE SÖZDİZİMİ %100 BAŞARIYLA TAMAMLANDI!")
-
+    print("\n>>> REBUILD AND INTEGRITY VERIFICATION 100% SUCCESSFUL! <<<")
 
 if __name__ == "__main__":
     main()

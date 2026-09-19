@@ -2,21 +2,23 @@
 ### (Community Turkish Localization for ZCode Desktop)
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.12.3%2B-green.svg)](https://zcode.z.ai)
-[![Keys Translated](https://img.shields.io/badge/Translated%20Keys-5%2C539-orange.svg)](tr_dictionary_zcode.json)
+[![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.14.0%2B-green.svg)](https://zcode.z.ai)
+[![Keys Translated](https://img.shields.io/badge/Translated%20Keys-6%2C295-orange.svg)](tr_dictionary_zcode.json)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Cross--Platform-lightgrey.svg)](#kurulum)
 
 ZCode Desktop yapay zeka destekli IDE ve kodlama asistanı için geliştirilmiş **en kapsamlı, %100 eksiksiz ve bağımsız Türkçe yerelleştirme projesidir**.
 
-Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerden (skills) fiyatlandırma webview'larına kadar ZCode'un tüm katmanlarını Türkçeleştirir.
+Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerden (skills) fiyatlandırma webview'larına, v3.14.0 ile gelen 3 adımlı karşılama sihirbazından iş akışlarına (workflows) kadar ZCode'un tüm katmanlarını Türkçeleştirir.
 
 ---
 
 ## 🌟 Neler İçerir? (Özellikler)
 
-1. **Tam Kapsamlı Arayüz (5.539+ Anahtar):**
-   - React-Intl dil sağlayıcısı (`IntlProvider`) üzerinden 5.539 anahtarın tamamı Türkçe terminoloji standartlarına uygun olarak yerelleştirildi.
+1. **Tam Kapsamlı Arayüz (6.295+ Anahtar):**
+   - React-Intl dil sağlayıcısı (`IntlProvider`) üzerinden **6.295 anahtarın tamamı** Türkçe terminoloji standartlarına uygun olarak yerelleştirildi.
+   - v3.14.0 ile gelen 3 adımlı Karşılama Sihirbazı (Onboarding), İş Akışları (Workflows) merkezi, Araç Çağrısı (ToolCalls) arayüzleri ve yeni ayarlar.
    - Electron yerel masaüstü menüleri (Dosya, Düzen, Görünüm, Pencere, Yardım).
+   - Güncelleyici diyalogları ve Türkçe yerel tarih biçimlendirmesi (`19 Eylül 2026`).
 2. **Resmi Eklenti Mağazası ve Claude Code Eklentileri (325+ Paket):**
    - 34 Resmi ZCode eklentisinin başlık ve açıklamaları.
    - Claude Code Mağazasındaki 291 eklentinin tamamının Türkçe açıklamaları (orijinal marka ve ürün adları korunarak).
@@ -60,7 +62,7 @@ We created this Turkish Localization project to make ZCode accessible to hundred
 
 ### Proposal / Feature Request for ZCode Core
 1. **Native `tr-TR` Support:**  
-   If the core team can natively integrate Turkish (`tr-TR` or `tr`) into `IntlProvider` alongside `en-US` and `zh-CN`, we are ready to submit our **5,539-key dictionary (`tr_dictionary_zcode.json`)** as an official Pull Request.
+   If the core team can natively integrate Turkish (`tr-TR` or `tr`) into `IntlProvider` alongside `en-US` and `zh-CN`, we are ready to submit our **6,295-key dictionary (`tr_dictionary_zcode.json`)** as an official Pull Request.
 2. **Advance Notification / String Diffs:**  
    If you can share string changes or notify us before major version releases, we will happily provide 100% verified Turkish translations ahead of time so Turkish users never experience untranslated UI or broken patches after updates.
 
@@ -72,7 +74,7 @@ Feel free to contact us or open an issue in this repository, or reach out to us 
 
 ```
 zcode-turkish-localization/
-├── tr_dictionary_zcode.json    # 5.539 anahtarlık eksiksiz Türkçe sözlük
+├── tr_dictionary_zcode.json    # 6.295 anahtarlık eksiksiz Türkçe sözlük
 ├── patch_zcode_tr.py           # Otomatik ASAR, i18n, menü ve webview yamalayıcı
 ├── single_click_patcher.py     # Bağımsız tek tık çalıştırıcı kaynak kodu
 ├── build_and_test_asar.py      # ASAR derleme ve sözdizimi doğrulama motoru
