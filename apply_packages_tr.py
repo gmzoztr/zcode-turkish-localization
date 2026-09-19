@@ -2,7 +2,7 @@
 """
 apply_packages_tr.py
 ZCode eklenti, yetenek, komut ve pazar yeri dosyalarını
-kusursuz, profesyonel Türkçe ile günceller.
+kusursuz, profesyonel Türkçe ile günceller (UTF-8 No BOM).
 """
 
 import os
@@ -14,16 +14,16 @@ PROGRAM_PACKAGES = r"C:\Program Files\ZCode\resources\glm\packages"
 
 PLUGIN_TRANSLATIONS = {
     "android-emulator": {
-        "displayName": "Android Emulator",
-        "description": "ZCode için Android geliştirme iş akışları ve emülatör otomasyonu sağlar."
+        "displayName": "Android Emülatörü",
+        "description": "Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları."
     },
     "browser-use": {
-        "displayName": "Tarayıcı Kullanımı",
-        "description": "Yerleşik tarayıcı otomasyonu ve Masaüstü IAB web kontrolü: Sayfaları açın, gezinin, inceleyin, tıklayın, metin girin, ekran görüntüsü alın ve doğrulayın."
+        "displayName": "Browser Use",
+        "description": "Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik."
     },
     "document-skills": {
-        "displayName": "Belge Yetenekleri",
-        "description": "Resmi ZCode eklentisi olarak yerleşik DOCX, PDF, XLSX ve PPTX belge üretim ve düzenleme yetenekleri.",
+        "displayName": "Belge Becerileri",
+        "description": "Yerleşik DOCX ve PDF belge oluşturma becerileri.",
         "examplePrompts": [
             "Notlarımdan biçimlendirilmiş bir Word belgesi oluştur",
             "Bu PDF'deki tabloları bir elektronik tabloya aktar",
@@ -31,20 +31,20 @@ PLUGIN_TRANSLATIONS = {
         ]
     },
     "ios-simulator": {
-        "displayName": "iOS Simulator",
-        "description": "ZCode için iOS geliştirme iş akışları ve simülatör otomasyonu sağlar."
+        "displayName": "iOS Simülatörü",
+        "description": "iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları."
     },
     "restore-legacy-sessions": {
         "displayName": "Eski Oturumları Geri Yükle",
-        "description": "Eski ACP dönemi ZCode oturumlarını seçin ve yeni ZCode görev ve oturum deposuna geri yükleyin."
+        "description": "Önceki sürümlerden kalan eski oturumları ve sohbet geçmişlerini geri yükleyin."
     },
     "skill-creator": {
-        "displayName": "Yetenek Oluşturucu",
-        "description": "Yerel ZCode yetenekleri oluşturun, düzenleyin ve geliştirin."
+        "displayName": "Beceri Oluşturucu",
+        "description": "Yeni ajan becerileri ve iş akışları oluşturmak için rehberli araç seti."
     },
     "zcode-guide": {
-        "displayName": "ZCode Kılavuzu",
-        "description": "ZCode kullanım ve tanı kılavuzu: MCP sunucularını, komutları, yetenekleri, kancaları ve eklentileri yapılandırmayı ve yapılandırma sorunlarını çözmeyi öğretir.",
+        "displayName": "ZCode Rehberi",
+        "description": "ZCode özellikleri, komutları ve yapılandırmaları için kapsamlı kullanım kılavuzu.",
         "examplePrompts": [
             "ZCode'da MCP sunucularını nasıl yapılandırırım?",
             "Mevcut ZCode yapılandırmamı tanıla"
@@ -52,11 +52,11 @@ PLUGIN_TRANSLATIONS = {
     },
     "computer-use": {
         "displayName": "Bilgisayar Kontrolü",
-        "description": "Bilgisayar Kontrolü: Fare, klavye ve arayüz ögesi kontrolü ile masaüstü uygulamalarını otomatikleştirin."
+        "description": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin."
     },
     "zcode-cua": {
         "displayName": "Bilgisayar Kontrolü",
-        "description": "Bilgisayar Kontrolü: Fare, klavye ve arayüz ögesi kontrolü ile masaüstü uygulamalarını otomatikleştirin."
+        "description": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin."
     }
 }
 
@@ -120,40 +120,51 @@ def patch_json_file(filepath):
                 if "description" in tr_info and data.get("description") != tr_info["description"]:
                     data["description"] = tr_info["description"]
                     changed = True
+                if "displayName" in tr_info and "displayName" in data and data.get("displayName") != tr_info["displayName"]:
+                    data["displayName"] = tr_info["displayName"]
+                    changed = True
 
         if "manifest" in data and "plugins" in data["manifest"]:
             for pl in data["manifest"]["plugins"]:
                 pname = pl.get("name")
                 tr_info = PLUGIN_TRANSLATIONS.get(pname)
                 if tr_info:
-                    if "description" in tr_info:
+                    if "description" in tr_info and pl.get("description") != tr_info["description"]:
                         pl["description"] = tr_info["description"]
                         if "description_i18n" not in pl:
                             pl["description_i18n"] = {}
                         pl["description_i18n"]["tr"] = tr_info["description"]
+                        changed = True
+                    if "displayName" in tr_info and pl.get("displayName") != tr_info["displayName"]:
+                        pl["displayName"] = tr_info["displayName"]
+                        changed = True
                     if "examplePrompts" in tr_info:
                         pl["examplePrompts"] = tr_info["examplePrompts"]
                         if "examplePrompts_i18n" not in pl:
                             pl["examplePrompts_i18n"] = {}
                         pl["examplePrompts_i18n"]["tr"] = tr_info["examplePrompts"]
-                    changed = True
+                        changed = True
 
         if "plugins" in data and isinstance(data["plugins"], list):
             for pl in data["plugins"]:
                 pname = pl.get("name")
                 tr_info = PLUGIN_TRANSLATIONS.get(pname)
                 if tr_info:
-                    if "description" in tr_info:
+                    if "description" in tr_info and pl.get("description") != tr_info["description"]:
                         pl["description"] = tr_info["description"]
                         if "description_i18n" not in pl:
                             pl["description_i18n"] = {}
                         pl["description_i18n"]["tr"] = tr_info["description"]
+                        changed = True
+                    if "displayName" in tr_info and pl.get("displayName") != tr_info["displayName"]:
+                        pl["displayName"] = tr_info["displayName"]
+                        changed = True
                     if "examplePrompts" in tr_info:
                         pl["examplePrompts"] = tr_info["examplePrompts"]
                         if "examplePrompts_i18n" not in pl:
                             pl["examplePrompts_i18n"] = {}
                         pl["examplePrompts_i18n"]["tr"] = tr_info["examplePrompts"]
-                    changed = True
+                        changed = True
 
         if changed:
             with open(filepath, "w", encoding="utf-8", newline="\n") as f:
@@ -228,6 +239,47 @@ def patch_markdown_file(filepath):
         print(f"[ERR MD] {filepath}: {e}")
 
 
+def patch_special_files():
+    # 1. server.js
+    server_paths = [
+        r"C:\Program Files\ZCode\resources\glm\packages\browser-use-plugin\dist\mcp\server.js",
+        os.path.join(USER_ZCODE, r"cli\plugins\cache\zcode-plugins-official\browser-use\0.4.2\dist\mcp\server.js")
+    ]
+    for sp in server_paths:
+        if os.path.exists(sp):
+            try:
+                with open(sp, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                orig_len = len(content)
+                content = content.replace("General-purpose agent for researching complex questions, searching for code, and executing multi-step tasks.", "Karmaşık soruları araştırmak, kod aramak ve çok adımlı görevleri yürütmek için genel amaçlı ajan.")
+                content = content.replace("Read-only search agent for broad fan-out searches", "Geniş kapsamlı aramalar için salt okunur arama ajanı")
+                if len(content) != orig_len or "Karmaşık soruları" in content:
+                    with open(sp, "w", encoding="utf-8", newline="\n") as f:
+                        f.write(content)
+                    print(f"[OK SERVER.JS] {sp}")
+            except Exception as e:
+                print(f"[ERR SERVER.JS] {sp}: {e}")
+
+    # 2. judge.md
+    judge_paths = [
+        r"C:\Program Files\ZCode\resources\glm\packages\document-skills-plugin\agents\judge.md",
+        os.path.join(USER_ZCODE, r"cli\plugins\cache\zcode-plugins-official\document-skills\0.1.4\agents\judge.md"),
+        os.path.join(USER_ZCODE, r"cli\plugins\cache\zcode-plugins-official\document-skills\0.1.5\agents\judge.md")
+    ]
+    for jp in judge_paths:
+        if os.path.exists(jp):
+            try:
+                with open(jp, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                if "kabul incelemesi" not in content or "Ã" in content:
+                    content = re.sub(r'description:\s*"[^"]+"', 'description: "Yalnızca pptx, docx, xlsx, pdf, poster ve grafik türündeki görsel çıktıların kabul incelemesi için tek yetkili görsel onay ajanı."', content)
+                    with open(jp, "w", encoding="utf-8", newline="\n") as f:
+                        f.write(content)
+                    print(f"[OK JUDGE.MD] {jp}")
+            except Exception as e:
+                print(f"[ERR JUDGE.MD] {jp}: {e}")
+
+
 def scan_and_patch(root_dir):
     if not os.path.exists(root_dir):
         return
@@ -242,11 +294,12 @@ def scan_and_patch(root_dir):
 
 def main():
     print("ZCode Eklenti ve Paket Türkçe Yamalama Başlatılıyor...")
+    patch_special_files()
     scan_and_patch(os.path.join(USER_ZCODE, "cli", "plugins"))
     scan_and_patch(PROGRAM_PACKAGES)
     scan_and_patch(os.path.expanduser(r"~\.agents\skills"))
     scan_and_patch(os.path.expanduser(r"~\.claude\skills"))
-    print("İşlem tamamlandı!")
+    print("Eklenti paketleri başarıyla güncellendi!")
 
 
 if __name__ == "__main__":

@@ -468,6 +468,14 @@ def patch_html(html_content):
         modified = clean.replace("Save 10% annually", "Yıllık %10 indirim").replace("From", "Başlangıç:").replace("/month", "/ ay").replace("/ay", "/ ay");
       } else if (clean.startsWith("Unified")) {
         modified = "Birleşik kullanıcı ve yetki yönetimi";
+      } else if (clean.includes("emÃ¼lat") || clean.includes("em\u00c3\u00bc")) {
+        modified = "Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları.";
+      } else if (clean.includes("MasaÃ¼stÃ¼") || clean.includes("Masa\u00c3\u00bc")) {
+        modified = "Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik.";
+      } else if (clean.includes("DOCX") && (clean.includes("oluÅŸ") || clean.includes("olu\u00c3"))) {
+        modified = "Yerleşik DOCX ve PDF belge oluşturma becerileri.";
+      } else if (clean.includes("simÃ¼lat") || clean.includes("sim\u00c3\u00bc")) {
+        modified = "iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları.";
       }
       if (modified.includes("per kullanıcı/ay") || modified.includes("per user/month") || modified.includes("per seat/month")) {
         modified = modified.replace("per kullanıcı/ay", "/ kullanıcı / ay").replace("per user/month", "/ kullanıcı / ay").replace("per seat/month", "/ kullanıcı / ay");
@@ -815,7 +823,7 @@ def patch_styles(js_content):
     # Plugin marketplace card titles and descriptions m4/h4 replacement
     m4_target = "function m4(e,t){return Dn(e,t)}function h4(e,t){return pne(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n)}"
     m4_replacement = (
-        'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emulator","ios-simulator":"iOS Simulator","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri"};'
+        'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emülatörü","ios-simulator":"iOS Simülatörü","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","zcode-cua":"Bilgisayar Kontrolü","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri"};'
         'const TR_P_DESCS={"browser-use":"Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik.","computer-use":"Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin.","document-skills":"Yerleşik DOCX ve PDF belge oluşturma becerileri.","dingtalk-cli":"OAuth/cihaz yetkilendirmesi, profil kontrolleri ve yeteneklerle DingTalk Çalışma Alanı CLI iş akışları.","lark-cli":"Belgeler, tablolar, Base, takvim ve mesajlaşma için rehberli kurulum ve OAuth girişli Lark CLI iş akışları.","obsidian":"Obsidian Markdown notları, Bases veritabanı görünümleri, Canvas panoları, CLI otomasyonu ve görselleştirme becerileri.","alibaba-cloud-cli":"Kimlik bilgisi kurulumu, profil kontrolleri ve güvenli bulut kaynak işlemleri için Alibaba Cloud CLI iş akışları.","android-emulator":"Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları.","ios-simulator":"iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları.","skill-creator":"Yeni ajan becerileri ve iş akışları oluşturmak için rehberli araç seti.","restore-legacy-sessions":"Önceki sürümlerden kalan eski oturumları ve sohbet geçmişlerini geri yükleyin.","zcode-guide":"ZCode özellikleri, komutları ve yapılandırmaları için kapsamlı kullanım kılavuzu.","video-agent-kit":"Otomatik video düzenleme araç seti: Bulut ses transkripsiyonu ve sentezi, kare analizi, zaman çizelgesi ve önizleme.","video2code":"ZCode yerleşik Browser Use WebView ile WebM kaydı ve ffmpeg ile MP4 dönüştürme/yeniden oluşturma.","cloudbase-skills":"Web, WeChat Mini Programı, veritabanı, bulut fonksiyonları ve yapay zeka projeleri için CloudBase geliştirme becerileri ve MCP entegrasyonu.","mimosa":"ZCode için yazma öncesi kancalar, tur sonu incelemesi, Git kapıları ve güvenlik taraması becerisiyle yerel öncelikli güvenlik koruması.","github":"Commit, pull request, issue, release, Actions ve repolar için GitHub CLI iş akışları.","gitlab":"Merge request, issue, CI/CD ve repolar için GitLab resmi ajan becerilerine dayalı GitLab CLI iş akışları.","tencent-meeting-cli":"OAuth2 kurulumu, toplantı yönetimi, kayıtlar ve katılımcı raporlarıyla Tencent Meeting CLI iş akışları.","wecom-cli":"Mesajlar, belgeler, tablolar, takvim, toplantılar ve kişiler için QR doğrulamalı WeCom CLI iş akışları.","accounting-and-reporting":"Şirket defterinden muhasebe kapanışı ve yasal raporlama: ay sonu kontrolleri ve mutabakat.","assess-credit":"Sabit getirili menkul kıymetler ve kredi araştırması: tahvil profilleri, ihraççı değerlendirmesi ve getiri eğrisi analizi.","find-clients":"Kurumsal bankacılık müşteri kazanımı: bölgeye ve sektöre göre potansiyel müşteri taraması ve fırsat analizi.","model-deals":"İşlem yapılandırma ve modelleme: M&A, IPO ve sermaye artırımı seyreltme analizi.","pick-funds":"Fon ve fon yöneticisi araştırması: çok kriterli fon taraması, portföy ve stil analizi.","read-macro":"Yukarıdan aşağıya makro strateji: büyüme, enflasyon, likidite ve çapraz varlık dağılım görünümleri.","run-fpa":"Kurumsal finansman ve FP&A: yönetim raporlaması, nakit akışı tahminleri ve bütçe-gerçekleşen varyans analizi.","vet-companies":"Karşı taraf ve şirket durum tespiti: yapılandırılmış DD raporları, tedarik zinciri haritalama ve risk taraması.","watch-positions":"İzleme listesi ve portföy takibi: kapanış sonrası özetler, pozisyon olay uyarıları ve gün içi hareket analizi.","write-research":"Uçtan uca yatırım araştırma raporları, sektör analizi, kazanç güncellemeleri ve değerleme modelleri.","hexin":"RoyalFlush iFinD hisse senedi, küresel hisseler, endeks, fon ve tahvil verileri için MCP hizmetleri.","wind":"Wind hisse senedi, küresel hisseler, endeks, fon, tahvil, ekonomik ve doküman verileri için MCP hizmetleri.","tianyancha":"Tianyancha şirket bilgileri sorguları için MCP hizmeti.","finance-search":"SEC EDGAR dosyalama araması ve finansal web/haber aramaları için MCP hizmetleri."};'
         'function m4(e,t){let k=(e&&(e.name||e.id||(e.listing&&e.listing.displayName)))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_NAMES[base])return TR_P_NAMES[base];if(TR_P_NAMES[k])return TR_P_NAMES[k];let res=Dn(e,t);if(TR_P_NAMES[res])return TR_P_NAMES[res];return res}'
         'function h4(e,t){let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res=pne(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}return res}'
@@ -933,6 +941,30 @@ def patch_styles(js_content):
             replacement_cmd_hint = f'e.argumentHint?(0,$.jsx)(`span`,{{className:`text-ui-base text-foreground-subtlest`,children:_trCommandHint(e.argumentHint)}}):null'
             if target_cmd_hint in js_content:
                 js_content = js_content.replace(target_cmd_hint, replacement_cmd_hint, 1)
+
+    # Plugin settings row cWt helpers and replacements
+    if "function _trPluginDescRow(" not in js_content:
+        pos_cwt = js_content.find("function cWt(")
+        if pos_cwt != -1:
+            plugin_row_helpers = (
+                'function _trPluginDescRow(e){if(!e)return"";let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
+                'if(typeof TR_P_DESCS!=="undefined"){if(TR_P_DESCS[b])return TR_P_DESCS[b];if(TR_P_DESCS[n])return TR_P_DESCS[n]};'
+                'return e.description||""};'
+                'function _trPluginNameRow(e,fallback){if(!e)return fallback;let n=(e.name||e.id||"");let b=String(n).replace(/@.*$/,"").replace(/^plugin:/,"").trim();'
+                'if(typeof TR_P_NAMES!=="undefined"){if(TR_P_NAMES[b])return TR_P_NAMES[b];if(TR_P_NAMES[n])return TR_P_NAMES[n]};'
+                'return fallback};'
+            )
+            js_content = js_content[:pos_cwt] + plugin_row_helpers + js_content[pos_cwt:]
+
+            target_plugin_name = 'children:si(e.name,m)}'
+            replacement_plugin_name = 'children:_trPluginNameRow(e,si(e.name,m))}'
+            if target_plugin_name in js_content:
+                js_content = js_content.replace(target_plugin_name, replacement_plugin_name, 1)
+
+            target_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:e.description}}):null'
+            replacement_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:_trPluginDescRow(e)}}):null'
+            if target_plugin_desc in js_content:
+                js_content = js_content.replace(target_plugin_desc, replacement_plugin_desc, 1)
 
     return js_content
 
@@ -1056,132 +1088,295 @@ def patch_menu(js_content):
 # 4. EKLENTİ, YETENEK VE KOMUT TÜRKÇELEŞTİRİCİSİ
 # =====================================================================
 
-PLUGIN_TR_MAP = {
-    "android-emulator": {"displayName": "Android Emulator", "description": "Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları."},
-    "browser-use": {"displayName": "Browser Use", "description": "Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik."},
-    "document-skills": {"displayName": "Belge Becerileri", "description": "Yerleşik DOCX ve PDF belge oluşturma becerileri."},
-    "ios-simulator": {"displayName": "iOS Simulator", "description": "iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları."},
-    "restore-legacy-sessions": {"displayName": "Eski Oturumları Geri Yükle", "description": "Önceki sürümlerden kalan eski oturumları ve sohbet geçmişlerini geri yükleyin."},
-    "skill-creator": {"displayName": "Beceri Oluşturucu", "description": "Yeni ajan becerileri ve iş akışları oluşturmak için rehberli araç seti."},
-    "zcode-guide": {"displayName": "ZCode Rehberi", "description": "ZCode özellikleri, komutları ve yapılandırmaları için kapsamlı kullanım kılavuzu."},
-    "computer-use": {"displayName": "Bilgisayar Kontrolü", "description": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin."},
-    "zcode-cua": {"displayName": "Bilgisayar Kontrolü", "description": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin."},
-    "dingtalk-cli": {"displayName": "DingTalk CLI", "description": "OAuth/cihaz yetkilendirmesi, profil kontrolleri ve yeteneklerle DingTalk Çalışma Alanı CLI iş akışları."},
-    "lark-cli": {"displayName": "Lark CLI", "description": "Belgeler, tablolar, Base, takvim ve mesajlaşma için rehberli kurulum ve OAuth girişli Lark CLI iş akışları."},
-    "obsidian": {"displayName": "Obsidian", "description": "Obsidian Markdown notları, Bases veritabanı görünümleri, Canvas panoları, CLI otomasyonu ve görselleştirme becerileri."},
-    "alibaba-cloud-cli": {"displayName": "Alibaba Cloud CLI", "description": "Kimlik bilgisi kurulumu, profil kontrolleri ve güvenli bulut kaynak işlemleri için Alibaba Cloud CLI iş akışları."},
-    "video-agent-kit": {"displayName": "Video Ajan Kiti", "description": "Otomatik video düzenleme araç seti: Bulut ses transkripsiyonu ve sentezi, kare analizi, zaman çizelgesi ve önizleme."},
-    "video2code": {"displayName": "Video2Code", "description": "ZCode yerleşik Browser Use WebView ile WebM kaydı ve ffmpeg ile MP4 dönüştürme/yeniden oluşturma."},
-    "cloudbase-skills": {"displayName": "CloudBase Becerileri", "description": "Web, WeChat Mini Programı, veritabanı, bulut fonksiyonları ve yapay zeka projeleri için CloudBase geliştirme becerileri ve MCP entegrasyonu."},
-    "mimosa": {"displayName": "Kod Güvenlik Koruması", "description": "ZCode için yazma öncesi kancalar, tur sonu incelemesi, Git kapıları ve güvenlik taraması becerisiyle yerel öncelikli güvenlik koruması."},
-    "github": {"displayName": "GitHub CLI", "description": "Commit, pull request, issue, release, Actions ve repolar için GitHub CLI iş akışları."},
-    "gitlab": {"displayName": "GitLab CLI", "description": "Merge request, issue, CI/CD ve repolar için GitLab resmi ajan becerilerine dayalı GitLab CLI iş akışları."},
-    "tencent-meeting-cli": {"displayName": "Tencent Meeting CLI", "description": "OAuth2 kurulumu, toplantı yönetimi, kayıtlar ve katılımcı raporlarıyla Tencent Meeting CLI iş akışları."},
-    "wecom-cli": {"displayName": "WeCom CLI", "description": "Mesajlar, belgeler, tablolar, takvim, toplantılar ve kişiler için QR doğrulamalı WeCom CLI iş akışları."},
-    "accounting-and-reporting": {"displayName": "Muhasebe ve Raporlama", "description": "Şirket defterinden muhasebe kapanışı ve yasal raporlama: ay sonu kontrolleri ve mutabakat."},
-    "assess-credit": {"displayName": "Sabit Getiri ve Kredi Araştırması", "description": "Sabit getirili menkul kıymetler ve kredi araştırması: tahvil profilleri, ihraççı değerlendirmesi ve getiri eğrisi analizi."},
-    "find-clients": {"displayName": "Kurumsal Müşteri Kazanımı", "description": "Kurumsal bankacılık müşteri kazanımı: bölgeye ve sektöre göre potansiyel müşteri taraması ve fırsat analizi."},
-    "model-deals": {"displayName": "İşlem Modelleme ve Yapılandırma", "description": "İşlem yapılandırma ve modelleme: M&A, IPO ve sermaye artırımı seyreltme analizi."},
-    "pick-funds": {"displayName": "Fon ve Portföy Araştırması", "description": "Fon ve fon yöneticisi araştırması: çok kriterli fon taraması, portföy ve stil analizi."},
-    "read-macro": {"displayName": "Makro Strateji Analizi", "description": "Yukarıdan aşağıya makro strateji: büyüme, enflasyon, likidite ve çapraz varlık dağılım görünümleri."},
-    "run-fpa": {"displayName": "Finansal Planlama ve Analiz (FP&A)", "description": "Kurumsal finansman ve FP&A: yönetim raporlaması, nakit akışı tahminleri ve bütçe-gerçekleşen varyans analizi."},
-    "vet-companies": {"displayName": "Şirket Durum Tespiti (Due Diligence)", "description": "Karşı taraf ve şirket durum tespiti: yapılandırılmış DD raporları, tedarik zinciri haritalama ve risk taraması."},
-    "watch-positions": {"displayName": "Pozisyon ve Portföy Takibi", "description": "İzleme listesi ve portföy takibi: kapanış sonrası özetler, pozisyon olay uyarıları ve gün içi hareket analizi."},
-    "write-research": {"displayName": "Yatırım ve Hisse Araştırması", "description": "Uçtan uca yatırım araştırma raporları, sektör analizi, kazanç güncellemeleri ve değerleme modelleri."},
-    "hexin": {"displayName": "Tonghuashun iFinD", "description": "RoyalFlush iFinD hisse senedi, küresel hisseler, endeks, fon ve tahvil verileri için MCP hizmetleri."},
-    "wind": {"displayName": "Wind Finansal Veri", "description": "Wind hisse senedi, küresel hisseler, endeks, fon, tahvil, ekonomik ve doküman verileri için MCP hizmetleri."},
-    "tianyancha": {"displayName": "Tianyancha Şirket Bilgileri", "description": "Tianyancha şirket bilgileri sorguları için MCP hizmeti."},
-    "finance-search": {"displayName": "Finansal Arama", "description": "SEC EDGAR dosyalama araması ve finansal web/haber aramaları için MCP hizmetleri."}
+PLUGIN_TRANSLATIONS = {
+    "android-emulator": {
+        "displayName": "Android Emülatörü",
+        "description": "Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları."
+    },
+    "browser-use": {
+        "displayName": "Browser Use",
+        "description": "Masaüstü için yerleşik tarayıcı otomasyonu çalışma ortamı ve rehberlik."
+    },
+    "document-skills": {
+        "displayName": "Belge Becerileri",
+        "description": "Yerleşik DOCX ve PDF belge oluşturma becerileri.",
+        "examplePrompts": [
+            "Notlarımdan biçimlendirilmiş bir Word belgesi oluştur",
+            "Bu PDF'deki tabloları bir elektronik tabloya aktar",
+            "Bu CSV dosyasından grafikler içeren bir Excel çalışma kitabı oluştur"
+        ]
+    },
+    "ios-simulator": {
+        "displayName": "iOS Simülatörü",
+        "description": "iOS simülatörlerini yönetme, test etme ve arayüz denetimi araçları."
+    },
+    "restore-legacy-sessions": {
+        "displayName": "Eski Oturumları Geri Yükle",
+        "description": "Önceki sürümlerden kalan eski oturumları ve sohbet geçmişlerini geri yükleyin."
+    },
+    "skill-creator": {
+        "displayName": "Beceri Oluşturucu",
+        "description": "Yeni ajan becerileri ve iş akışları oluşturmak için rehberli araç seti."
+    },
+    "zcode-guide": {
+        "displayName": "ZCode Rehberi",
+        "description": "ZCode özellikleri, komutları ve yapılandırmaları için kapsamlı kullanım kılavuzu.",
+        "examplePrompts": [
+            "ZCode'da MCP sunucularını nasıl yapılandırırım?",
+            "Mevcut ZCode yapılandırmamı tanıla"
+        ]
+    },
+    "computer-use": {
+        "displayName": "Bilgisayar Kontrolü",
+        "description": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin."
+    },
+    "zcode-cua": {
+        "displayName": "Bilgisayar Kontrolü",
+        "description": "Bilgisayar Kontrolü: Masaüstü uygulamalarını fare, klavye ve sistem eylemleriyle otomatikleştirin."
+    }
 }
 
-SKILL_TR_MAP = {
+SKILL_TRANSLATIONS = {
     "android-dev": "android-emulator MCP araçlarıyla Android uygulamaları derleyin, çalıştırın, inceleyin ve otomatikleştirin.",
     "control-browser": "Yalnızca ana ajan tarayıcı kullanımı: ZCode içinde web sayfalarını ve yerel HTTP hedeflerini açın, gezinin, inceleyin, tıklayın, form doldurun, ekran görüntüsü alın ve doğrulayın.",
-    "web-gui-tester": "Oturumdaki tarayıcı otomasyon araçlarını kullanarak web arayüzlerini test edin, ekran görüntüleriyle doğrulayın ve test raporu oluşturun.",
-    "docx": "DOCX belgeleri oluşturma, biçimlendirme koruma, düzenleme ve metin çıkarma yetenekleri.",
-    "pdf": "PDF belgeleri oluşturma, form doldurma ve profesyonel sayfa düzeni desteği.",
+    "web-gui-tester": "Oturumdaki tarayıcı otomasyon araçlarını kullanarak web arayüzlerini etkileşimli olarak test edin, kullanıcı eylemlerini simüle edin, ekran görüntüleriyle doğrulayın ve test raporu oluşturun.",
+    "docx": "Revizyonlar, yorumlar, biçimlendirme koruma ve metin çıkarma desteğiyle eksiksiz DOCX belgesi oluşturma, düzenleme ve analiz yetenekleri.",
+    "pdf": "PDF belgeleri oluşturma, form doldurma, metin çıkarma ve profesyonel sayfa düzeni desteği.",
     "pptx": "PowerPoint (.pptx) sunumları oluşturma ve düzenleme yetenekleri.",
-    "xlsx": "Excel (.xlsx) dosyaları, veri analizleri, formüller ve grafikler için işleme yetenekleri.",
-    "ios-dev": "ios-simulator MCP araçlarıyla iOS simülatör uygulamaları derleyin, çalıştırın ve otomatikleştirin.",
-    "restore-legacy-sessions": "Eski ACP dönemi ZCode oturumlarını inceleyin ve yeni oturum deposuna geri yükleyin.",
-    "skill-creator": "Yeni yetenekler oluşturun, mevcut yetenekleri düzenleyin ve geliştirin.",
+    "xlsx": "Tablo dosyaları, veri analizleri, formüller ve grafikler için gelişmiş Excel (.xlsx) işleme yetenekleri.",
+    "ios-dev": "ios-simulator MCP araçlarıyla iOS simülatör uygulamaları derleyin, çalıştırın, inceleyin ve otomatikleştirin.",
+    "restore-legacy-sessions": "Eski ACP dönemi ZCode oturumlarını inceleyin, planlayın ve yeni ZCode oturum deposuna geri yükleyin.",
+    "skill-creator": "Yeni yetenekler oluşturun, mevcut yetenekleri düzenleyin ve metinleri iyileştirin.",
     "computer-use": "Erişilebilirlik odaklı semantik eylemler ve görsel doğrulama ile masaüstü kontrolü.",
-    "diagnosing-commands": "ZCode eğik çizgi komutu (/komut) sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-hooks": "ZCode kanca (hook) yapılandırma sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-mcp": "MCP (Model Context Protocol) sunucu sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-plugins": "Eklenti ve pazar yeri sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-skills": "Yetenek (skill) yapılandırma sorunlarını tanılayın ve düzeltin.",
-    "zcode-configuration-guide": "ZCode uzantı kaynaklarını yapılandırırken veya sorunları giderirken kullanın.",
-    "microsoft-foundry": "Microsoft Foundry ajanlarını, modellerini ve kaynaklarını uçtan uca derleyin, dağıtın ve yönetin.",
-    "finetuning": "Microsoft Foundry üzerinde modelleri ince ayarlar (fine-tune). Veri kümesi hazırlama ve eğitimi kapsar.",
-    "deploy-model": "Azure OpenAI modellerini amaca yönelik hızlı veya özelleştirilmiş olarak dağıtır.",
-    "capacity": "Bölgeler genelinde Azure OpenAI model kapasitesini ve kotalarını analiz eder.",
-    "customize": "Azure OpenAI modelleri için sürüm, SKU ve kapasite kontrollü rehberli dağıtım sağlar.",
-    "preset": "Azure OpenAI modellerini en uygun bölgelere akıllıca dağıtır.",
+    "diagnosing-commands": "ZCode istemcisindeki özel eğik çizgi komutu (/komut) yapılandırma sorunlarını tanılayın ve düzeltin.",
+    "diagnosing-hooks": "ZCode istemcisindeki kanca (hook) yapılandırma sorunlarını tanılayın ve düzeltin.",
+    "diagnosing-mcp": "ZCode istemcisindeki MCP (Model Context Protocol) sunucu yapılandırma sorunlarını tanılayın ve düzeltin.",
+    "diagnosing-plugins": "ZCode istemcisindeki eklenti ve pazar yeri sorunlarını tanılayın ve düzeltin.",
+    "diagnosing-skills": "ZCode istemcisindeki yetenek (skill) yapılandırma sorunlarını tanılayın ve düzeltin.",
+    "zcode-configuration-guide": "ZCode uzantı kaynaklarını (MCP sunucuları, eğik çizgi komutları, yetenekler, kancalar) yapılandırırken veya sorunları giderirken kullanın.",
+    "microsoft-foundry": "Microsoft Foundry ajanlarını, modellerini ve kaynaklarını uçtan uca derleyin, dağıtın, değerlendirin, optimize edin ve yönetin.",
+    "finetuning": "SFT, DPO veya RFT kullanarak Microsoft Foundry üzerinde modelleri ince ayarlar (fine-tune). Veri kümesi hazırlama, eğitim işi gönderme ve değerlendirmeyi kapsar.",
+    "deploy-model": "Akıllı amaç tabanlı yönlendirme ile birleşik Azure OpenAI model dağıtım yeteneği. Hızlı ön ayarlı ve tam özelleştirilmiş dağıtımları yönetir.",
+    "capacity": "Bölgeler ve projeler genelinde kullanılabilir Azure OpenAI model kapasitesini keşfeder. Kota sınırlarını analiz eder ve en uygun dağıtım konumlarını önerir.",
+    "customize": "Tam özelleştirme kontrolüyle Azure OpenAI modelleri için etkileşimli rehberli dağıtım akışı. Model sürümü, SKU, kapasite ve filtre politikası seçimini sağlar.",
+    "preset": "Kullanılabilir tüm bölgelerdeki kapasiteyi analiz ederek Azure OpenAI modellerini en uygun bölgelere akıllıca dağıtır.",
     "chrome-cdp": "Chrome oturumu ile etkileşim kurun, sayfaları denetleyin ve test edin.",
-    "codebase-memory": "Yapısal kod sorguları, mimari keşif ve çağrı zinciri analizi için bilgi grafiğini kullanın.",
+    "codebase-memory": "Yapısal kod sorguları, mimari keşif ve çağrı zinciri analizi için kod tabanı bilgi grafiğini kullanın.",
     "desktop-eye": "Canlı masaüstü ekran görüntüsü alarak arayüz bağlamını anlık olarak doğrulayın."
 }
 
+COMMAND_TRANSLATIONS = {
+    "android-dev.md": {
+        "description": "Android emülatör geliştirme döngüsünü başlatın.",
+        "argument-hint": "\"[hedef veya sorun açıklaması]\""
+    },
+    "ios-dev.md": {
+        "description": "iOS simülatör geliştirme döngüsünü başlatın.",
+        "argument-hint": "\"[hedef veya sorun açıklaması]\""
+    },
+    "restore-legacy-sessions.md": {
+        "description": "Eski bir ZCode oturumunu seçin ve geri yükleyin.",
+        "argument-hint": "\"[ajan/çalışma alanı/oturum filtreleri]\""
+    }
+}
+
+
+def patch_json_file(filepath):
+    try:
+        with open(filepath, "r", encoding="utf-8-sig") as f:
+            data = json.load(f)
+
+        changed = False
+
+        name = data.get("name")
+        if name:
+            clean_name = name.replace("-plugin", "")
+            tr_info = PLUGIN_TRANSLATIONS.get(clean_name) or PLUGIN_TRANSLATIONS.get(name)
+            if tr_info:
+                if "description" in tr_info and data.get("description") != tr_info["description"]:
+                    data["description"] = tr_info["description"]
+                    changed = True
+                if "displayName" in tr_info and "displayName" in data and data.get("displayName") != tr_info["displayName"]:
+                    data["displayName"] = tr_info["displayName"]
+                    changed = True
+
+        if "manifest" in data and "plugins" in data["manifest"]:
+            for pl in data["manifest"]["plugins"]:
+                pname = pl.get("name")
+                tr_info = PLUGIN_TRANSLATIONS.get(pname)
+                if tr_info:
+                    if "description" in tr_info and pl.get("description") != tr_info["description"]:
+                        pl["description"] = tr_info["description"]
+                        if "description_i18n" not in pl:
+                            pl["description_i18n"] = {}
+                        pl["description_i18n"]["tr"] = tr_info["description"]
+                        changed = True
+                    if "displayName" in tr_info and pl.get("displayName") != tr_info["displayName"]:
+                        pl["displayName"] = tr_info["displayName"]
+                        changed = True
+                    if "examplePrompts" in tr_info:
+                        pl["examplePrompts"] = tr_info["examplePrompts"]
+                        if "examplePrompts_i18n" not in pl:
+                            pl["examplePrompts_i18n"] = {}
+                        pl["examplePrompts_i18n"]["tr"] = tr_info["examplePrompts"]
+                        changed = True
+
+        if "plugins" in data and isinstance(data["plugins"], list):
+            for pl in data["plugins"]:
+                pname = pl.get("name")
+                tr_info = PLUGIN_TRANSLATIONS.get(pname)
+                if tr_info:
+                    if "description" in tr_info and pl.get("description") != tr_info["description"]:
+                        pl["description"] = tr_info["description"]
+                        if "description_i18n" not in pl:
+                            pl["description_i18n"] = {}
+                        pl["description_i18n"]["tr"] = tr_info["description"]
+                        changed = True
+                    if "displayName" in tr_info and pl.get("displayName") != tr_info["displayName"]:
+                        pl["displayName"] = tr_info["displayName"]
+                        changed = True
+                    if "examplePrompts" in tr_info:
+                        pl["examplePrompts"] = tr_info["examplePrompts"]
+                        if "examplePrompts_i18n" not in pl:
+                            pl["examplePrompts_i18n"] = {}
+                        pl["examplePrompts_i18n"]["tr"] = tr_info["examplePrompts"]
+                        changed = True
+
+        if changed:
+            with open(filepath, "w", encoding="utf-8", newline="\n") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+
+def patch_markdown_file(filepath):
+    try:
+        with open(filepath, "r", encoding="utf-8-sig") as f:
+            content = f.read()
+
+        changed = False
+
+        if os.path.basename(filepath) == "SKILL.md":
+            for skill_name, tr_desc in SKILL_TRANSLATIONS.items():
+                if re.search(rf"^name:\s*{re.escape(skill_name)}\b", content, re.MULTILINE):
+                    new_content, n = re.subn(
+                        r"(^description:\s*)([^\n>]+)",
+                        rf'\g<1>"{tr_desc}"',
+                        content,
+                        flags=re.MULTILINE
+                    )
+                    if n > 0:
+                        content = new_content
+                        changed = True
+                    else:
+                        new_content, n = re.subn(
+                            r"(^description:\s*>\n(?:\s+[^\n]+\n)+)",
+                            f'description: "{tr_desc}"\n',
+                            content,
+                            flags=re.MULTILINE
+                        )
+                        if n > 0:
+                            content = new_content
+                            changed = True
+
+        cmd_name = os.path.basename(filepath)
+        if cmd_name in COMMAND_TRANSLATIONS:
+            cmd_info = COMMAND_TRANSLATIONS[cmd_name]
+            tr_desc = cmd_info["description"]
+            tr_hint = cmd_info.get("argument-hint")
+
+            new_content, n = re.subn(
+                r"(^description:\s*)([^\n]+)",
+                rf'\g<1>"{tr_desc}"',
+                content,
+                flags=re.MULTILINE
+            )
+            if n > 0:
+                content = new_content
+                changed = True
+
+            if tr_hint:
+                new_content, n2 = re.subn(
+                    r"(^argument-hint:\s*)([^\n]+)",
+                    rf'\g<1>{tr_hint}',
+                    content,
+                    flags=re.MULTILINE
+                )
+                if n2 > 0:
+                    content = new_content
+                    changed = True
+
+        if changed:
+            with open(filepath, "w", encoding="utf-8", newline="\n") as f:
+                f.write(content)
+    except Exception:
+        pass
+
+
+def patch_special_files(user_zcode, program_packages):
+    # 1. server.js
+    server_paths = [
+        os.path.join(program_packages, r"browser-use-plugin\dist\mcp\server.js"),
+        os.path.join(user_zcode, r"cli\plugins\cache\zcode-plugins-official\browser-use\0.4.2\dist\mcp\server.js")
+    ]
+    for sp in server_paths:
+        if os.path.exists(sp):
+            try:
+                with open(sp, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                orig_len = len(content)
+                content = content.replace("General-purpose agent for researching complex questions, searching for code, and executing multi-step tasks.", "Karmaşık soruları araştırmak, kod aramak ve çok adımlı görevleri yürütmek için genel amaçlı ajan.")
+                content = content.replace("Read-only search agent for broad fan-out searches", "Geniş kapsamlı aramalar için salt okunur arama ajanı")
+                if len(content) != orig_len or "Karmaşık soruları" in content:
+                    with open(sp, "w", encoding="utf-8", newline="\n") as f:
+                        f.write(content)
+            except Exception:
+                pass
+
+    # 2. judge.md
+    judge_paths = [
+        os.path.join(program_packages, r"document-skills-plugin\agents\judge.md"),
+        os.path.join(user_zcode, r"cli\plugins\cache\zcode-plugins-official\document-skills\0.1.4\agents\judge.md"),
+        os.path.join(user_zcode, r"cli\plugins\cache\zcode-plugins-official\document-skills\0.1.5\agents\judge.md")
+    ]
+    for jp in judge_paths:
+        if os.path.exists(jp):
+            try:
+                with open(jp, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                if "kabul incelemesi" not in content or "Ã" in content:
+                    content = re.sub(r'description:\s*"[^"]+"', 'description: "Yalnızca pptx, docx, xlsx, pdf, poster ve grafik türündeki görsel çıktıların kabul incelemesi için tek yetkili görsel onay ajanı."', content)
+                    with open(jp, "w", encoding="utf-8", newline="\n") as f:
+                        f.write(content)
+            except Exception:
+                pass
+
+
+def scan_and_patch(root_dir):
+    if not os.path.exists(root_dir):
+        return
+    for root, dirs, files in os.walk(root_dir):
+        for f in files:
+            p = os.path.join(root, f)
+            if f in ("plugin.json", "bundled-marketplace.json", "cdn-marketplace.json", "marketplace.json"):
+                patch_json_file(p)
+            elif f == "SKILL.md" or (f.endswith(".md") and "commands" in root):
+                patch_markdown_file(p)
+
 
 def apply_packages_tr():
-    print("[5/7] Eklenti, Yetenek ve Komut Paketleri Türkçeleştiriliyor...")
+    print("[5/7] Eklenti, yetenek ve komut paketleri Türkçeleştiriliyor...")
     user_zcode = os.path.expanduser(r"~\.zcode")
     program_packages = r"C:\Program Files\ZCode\resources\glm\packages"
     agents_skills = os.path.expanduser(r"~\.agents\skills")
     claude_skills = os.path.expanduser(r"~\.claude\skills")
 
-    dirs_to_scan = [user_zcode, program_packages, agents_skills, claude_skills]
-
-    for d in dirs_to_scan:
-        if not os.path.exists(d):
-            continue
-        for root, _, files in os.walk(d):
-            for file in files:
-                fpath = os.path.join(root, file)
-                if file.lower() == "skill.md":
-                    try:
-                        with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
-                            content = f.read()
-                        folder_name = os.path.basename(root).lower()
-                        if folder_name in SKILL_TR_MAP:
-                            tr_desc = SKILL_TR_MAP[folder_name]
-                            new_content = re.sub(r'description:\s*["\'].*?["\']', f'description: "{tr_desc}"', content, count=1)
-                            if new_content != content:
-                                with open(fpath, "w", encoding="utf-8") as f:
-                                    f.write(new_content)
-                    except Exception:
-                        pass
-                elif file.lower().endswith(".json") and ("marketplace" in file.lower() or "plugin" in file.lower()):
-                    try:
-                        with open(fpath, "r", encoding="utf-8-sig", errors="ignore") as f:
-                            jdata = json.load(f)
-                        changed = False
-                        if isinstance(jdata, dict) and "plugins" in jdata:
-                            for p in jdata["plugins"]:
-                                pid = p.get("name") or p.get("id")
-                                if pid in PLUGIN_TR_MAP:
-                                    p["displayName"] = PLUGIN_TR_MAP[pid]["displayName"]
-                                    p["description"] = PLUGIN_TR_MAP[pid]["description"]
-                                    if "description_i18n" not in p or not isinstance(p["description_i18n"], dict):
-                                        p["description_i18n"] = {}
-                                    p["description_i18n"]["tr"] = PLUGIN_TR_MAP[pid]["description"]
-                                    p["description_i18n"]["tr-TR"] = PLUGIN_TR_MAP[pid]["description"]
-                                    if "displayName_i18n" not in p or not isinstance(p["displayName_i18n"], dict):
-                                        p["displayName_i18n"] = {}
-                                    p["displayName_i18n"]["tr"] = PLUGIN_TR_MAP[pid]["displayName"]
-                                    p["displayName_i18n"]["tr-TR"] = PLUGIN_TR_MAP[pid]["displayName"]
-                                    changed = True
-                        elif isinstance(jdata, dict) and "name" in jdata:
-                            pname = jdata.get("name")
-                            if pname in PLUGIN_TR_MAP:
-                                jdata["description"] = PLUGIN_TR_MAP[pname]["description"]
-                                changed = True
-                        if changed:
-                            with open(fpath, "w", encoding="utf-8") as f:
-                                json.dump(jdata, f, ensure_ascii=False, indent=2)
-                    except Exception:
-                        pass
+    patch_special_files(user_zcode, program_packages)
+    scan_and_patch(os.path.join(user_zcode, "cli", "plugins"))
+    scan_and_patch(program_packages)
+    scan_and_patch(agents_skills)
+    scan_and_patch(claude_skills)
+    print("    -> Eklenti ve komut paketleri başarıyla güncellendi.")
 
 
 def clean_and_restore_glm_config():
