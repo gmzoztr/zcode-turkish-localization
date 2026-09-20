@@ -5,10 +5,15 @@
 [![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.14.0%2B-green.svg)](https://zcode.z.ai)
 [![Keys Translated](https://img.shields.io/badge/Translated%20Keys-6%2C295-orange.svg)](tr_dictionary_zcode.json)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Cross--Platform-lightgrey.svg)](#kurulum)
+[![GitHub stars](https://img.shields.io/github/stars/gmzoztr/zcode-turkish-localization?style=social)](https://github.com/gmzoztr/zcode-turkish-localization)
 
 ZCode Desktop yapay zeka destekli IDE ve kodlama asistanı için geliştirilmiş **en kapsamlı, %100 eksiksiz ve bağımsız Türkçe yerelleştirme projesidir**.
 
 Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerden (skills) fiyatlandırma webview'larına, v3.14.0 ile gelen 3 adımlı karşılama sihirbazından iş akışlarına (workflows) kadar ZCode'un tüm katmanlarını Türkçeleştirir.
+
+> [!TIP]
+> **Projeyi beğendiyseniz sağ üst köşeden bir ⭐ Yıldız (Star) bırakarak bize destek olabilirsiniz!**  
+> GitHub yıldızlarınız, ZCode resmi ekibinin Türkçe dilini doğrudan çekirdeğe (native) entegre etmesini hızlandırmak ve projenin görünürlüğünü artırmak için en büyük katkıdır.
 
 ---
 
@@ -38,7 +43,10 @@ Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerd
 2. ZCode açıkken veya kapalıyken çift tıklayıp çalıştırın (Gerekirse Yönetici İzni verin).
 3. 3 saniye içinde yama uygulanır ve ZCode otomatik olarak Türkçe başlatılır.
 
-### Yöntem 2: Python ile Kurulum (Geliştiriciler İçin)
+### Yöntem 2: Tek Tıkla Toplu İş (.bat ile)
+Depoyu klonladıysanız veya ZIP olarak indirdiyseniz, klasördeki **`TURKCELESTIR.bat`** dosyasına çift tıklayarak yamayı kolayca başlatabilirsiniz.
+
+### Yöntem 3: Python ile Kurulum (Geliştiriciler İçin)
 ```bash
 git clone https://github.com/gmzoztr/zcode-turkish-localization.git
 cd zcode-turkish-localization
@@ -75,6 +83,7 @@ Feel free to contact us or open an issue in this repository, or reach out to us 
 ```
 zcode-turkish-localization/
 ├── tr_dictionary_zcode.json    # 6.295 anahtarlık eksiksiz Türkçe sözlük
+├── TURKCELESTIR.bat            # Windows için tek tıkla kurulum bat dosyası
 ├── patch_zcode_tr.py           # Otomatik ASAR, i18n, menü ve webview yamalayıcı
 ├── single_click_patcher.py     # Bağımsız tek tık çalıştırıcı kaynak kodu
 ├── build_and_test_asar.py      # ASAR derleme ve sözdizimi doğrulama motoru

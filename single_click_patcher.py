@@ -24,6 +24,7 @@ import subprocess
 import zlib
 import base64
 import re
+import webbrowser
 
 # Windows UTF-8 Konsol Ayarı
 if sys.platform == "win32":
@@ -1664,19 +1665,30 @@ def main():
 
     print("\n" + "=" * 60)
     print("  ✅ TEBRİKLER! ZCODE TÜRKÇE YAMASI BAŞARIYLA TAMAMLANDI! ")
+    print("=" * 60)
+    print("  ⭐ Projeyi faydalı bulduysanız GitHub'da bir Yıldız (Star)")
+    print("     bırakarak projemize destek olabilirsiniz!")
+    print("     👉 https://github.com/gmzoztr/zcode-turkish-localization")
     print("=" * 60 + "\n")
 
     # 10. ZCode'u Bağımsız Masaüstü Süreci Olarak Başlat
     launch_zcode_detached(DEFAULT_EXE)
 
-    # 11. Bilgilendirme Kutusu
+    # 11. Bilgilendirme Kutusu ve GitHub Yıldız Çağrısı
     try:
-        ctypes.windll.user32.MessageBoxW(
-            None,
-            "ZCode başarıyla güncellendi ve %100 Türkçe olarak başlatıldı!\n\nTüm menüler, ayarlar ve yetenekler aktif durumdadır.",
-            "ZCode Türkçe Yama Başarılı",
-            0x40 | 0x0  # MB_ICONINFORMATION | MB_OK
+        msg = (
+            "ZCode başarıyla güncellendi ve %100 Türkçe olarak başlatıldı!\n\n"
+            "Tüm menüler, ayarlar, eklenti mağazası ve yetenekler aktif durumdadır.\n\n"
+            "⭐ Projeyi beğendiyseniz GitHub repomuza bir Yıldız (Star) vererek destek olmak ister misiniz?"
         )
+        ret = ctypes.windll.user32.MessageBoxW(
+            None,
+            msg,
+            "ZCode Türkçe Yama Başarılı ⭐",
+            0x40 | 0x4  # MB_ICONINFORMATION | MB_YESNO
+        )
+        if ret == 6:  # IDYES
+            webbrowser.open("https://github.com/gmzoztr/zcode-turkish-localization")
     except Exception:
         pass
 
