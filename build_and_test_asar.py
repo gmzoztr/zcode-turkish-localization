@@ -373,37 +373,79 @@ def patch_styles(js_content):
     "Close": "Kapat",
     "Maybe later": "Belki daha sonra",
     "Back": "Geri",
-    "Confirm": "Onayla"
+    "Confirm": "Onayla",
+    "Current plan": "Mevcut Plan",
+    "Manage subscription": "Aboneliği Yönet",
+    "US$12.60 /month": "US$12.60 / ay",
+    "US$56.00 /month": "US$56.00 / ay",
+    "US$117.60 /month": "US$117.60 / ay",
+    "US$12.60/month": "US$12.60 / ay",
+    "US$56.00/month": "US$56.00 / ay",
+    "US$117.60/month": "US$117.60 / ay",
+    "BETTER WHEN SHARED": "PAYLAŞTIKÇA DAHA GÜZEL",
+    "Better when shared": "Paylaştıkça daha güzel",
+    "Invite new users, earn more together.": "Yeni kullanıcılar davet edin, birlikte daha çok kazanın.",
+    "Invite new users, earn more together": "Yeni kullanıcılar davet edin, birlikte daha çok kazanın",
+    "The campaign hasn't started yet": "Kampanya henüz başlamadı",
+    "The campaign has not started yet": "Kampanya henüz başlamadı",
+    "BUILD TOGETHER": "BİRLİKTE ÜRETİN",
+    "Build together": "Birlikte üretin",
+    "Build Together": "Birlikte Üretin",
+    "Reward tasks": "Ödül Görevleri",
+    "Reward Tasks": "Ödül Görevleri",
+    "Reward task": "Ödül Görevi",
+    "Reward Task": "Ödül Görevi",
+    "Task": "Görev",
+    "Progress": "İlerleme",
+    "Reward": "Ödül",
+    "No reward tasks": "Ödül görevi bulunmuyor",
+    "No reward tasks yet": "Henüz ödül görevi bulunmuyor",
+    "Your referrals": "Davetleriniz",
+    "Your Referrals": "Davetleriniz",
+    "Friend": "Arkadaş",
+    "Status": "Durum",
+    "Friend's reward": "Arkadaşın Ödülü",
+    "Friend's Reward": "Arkadaşın Ödülü",
+    "Invited at": "Davet Tarihi",
+    "Invited At": "Davet Tarihi",
+    "No referrals yet": "Henüz davet bulunmuyor",
+    "Invite friends": "Arkadaşlarını Davet Et",
+    "Invite Friends": "Arkadaşlarını Davet Et",
+    "Copy invite link": "Davet Bağlantısını Kopyala",
+    "Copy Invite Link": "Davet Bağlantısını Kopyala",
+    "Invite link copied": "Davet bağlantısı kopyalandı",
+    "Invite link copied!": "Davet bağlantısı kopyalandı!",
+    "Rules": "Kurallar",
+    "Activity rules": "Etkinlik Kuralları",
+    "Activity Rules": "Etkinlik Kuralları",
+    "View rules": "Kuralları Görüntüle",
+    "View Rules": "Kuralları Görüntüle"
   };
 
   const SORTED_KEYS = Object.keys(TR_MAP).sort((a, b) => b.length - a.length);
+  let isTranslating = false;
 
   function translateNode(n) {
     if (!n) return;
     if (n.nodeType === 3) {
       let raw = n.nodeValue;
       if (!raw) return;
-      let rawNorm = raw.replaceAll(String.fromCharCode(160), " ");
-      let clean = rawNorm.trim().replace(/\\s+/g, " ");
+      let clean = raw.split(String.fromCharCode(160)).join(" ").split(" ").filter(Boolean).join(" ");
       if (!clean) return;
       if (TR_MAP[clean]) {
-        let mLead = rawNorm.match(/^\\s+/);
-        let mTrail = rawNorm.match(/\\s+$/);
-        let lead = mLead ? mLead[0] : "";
-        let trail = mTrail ? mTrail[0] : "";
+        let lead = "";
+        let trail = "";
+        for (let i = 0; i < raw.length && raw.charCodeAt(i) <= 32; i++) lead += raw[i];
+        for (let i = raw.length - 1; i >= 0 && raw.charCodeAt(i) <= 32; i--) trail = raw[i] + trail;
         n.nodeValue = lead + TR_MAP[clean] + trail;
         return;
       }
-      let modified = rawNorm;
+      let modified = raw;
       for (const en of SORTED_KEYS) {
         if (modified.includes(en)) {
           modified = modified.replaceAll(en, TR_MAP[en]);
         }
       }
-      modified = modified.replace(/[\/／]\s*months?\b/gi, " / ay");
-      modified = modified.replace(/[\/／]\s*years?\b/gi, " / yıl");
-      modified = modified.replace(/(?<![\/／]|\/ )(?<![a-zA-Z])months?\b/gi, "ay");
-      modified = modified.replace(/(?<![\/／]|\/ )(?<![a-zA-Z])years?\b/gi, "yıl");
       if (clean.startsWith("6x Lite usage") || clean.startsWith("6× Lite usage")) {
         modified = "6 kat Lite kullanımı + Tüm avantajlar";
       } else if (clean.startsWith("14x Lite usage") || clean.startsWith("14× Lite usage")) {
@@ -411,7 +453,7 @@ def patch_styles(js_content):
       } else if (clean.startsWith("20x Lite usage") || clean.startsWith("20× Lite usage")) {
         modified = "20 kat Lite kullanımı + Tüm avantajlar";
       } else if (clean.startsWith("Save 10% annually")) {
-        modified = clean.replace("Save 10% annually", "Yıllık %10 indirim").replace("From", "Başlangıç:").replace(/[\/／]\s*months?\b/gi, " / ay").replace("/ay", " / ay");
+        modified = clean.replace("Save 10% annually", "Yıllık %10 indirim").replace("From", "Başlangıç:").replace(/[/／]\s*months?\b/gi, " / ay").replace("/ay", " / ay");
       } else if (clean.startsWith("Unified")) {
         modified = "Birleşik kullanıcı ve yetki yönetimi";
       }
@@ -436,18 +478,24 @@ def patch_styles(js_content):
     }
   }
 
-  if (document.body) translateNode(document.body);
+  function safeTranslate(root) {
+    if (isTranslating || !root) return;
+    isTranslating = true;
+    try {
+      translateNode(root);
+    } catch (e) {
+    } finally {
+      isTranslating = false;
+    }
+  }
+
+  safeTranslate(document.body || document.documentElement);
+
   if (window.__zcode_tr_obs__) {
     try { window.__zcode_tr_obs__.disconnect(); } catch (e) {}
   }
   const obs = new MutationObserver(muts => {
-    for (const m of muts) {
-      if (m.type === "childList") {
-        for (let i = 0; i < m.addedNodes.length; i++) translateNode(m.addedNodes[i]);
-      } else if (m.type === "characterData") {
-        translateNode(m.target);
-      }
-    }
+    safeTranslate(document.body || document.documentElement);
   });
   obs.observe(document.documentElement || document.body, { childList: true, subtree: true, characterData: true });
   window.__zcode_tr_obs__ = obs;
@@ -456,17 +504,20 @@ def patch_styles(js_content):
     try { clearInterval(window.__zcode_tr_interval__); } catch (e) {}
   }
   window.__zcode_tr_interval__ = setInterval(() => {
-    if (document.body) translateNode(document.body);
-  }, 400);'''
+    safeTranslate(document.body || document.documentElement);
+  }, 300);'''
 
         fn_sig = js_content[pos_fn_start:js_content.find("{", pos_fn_start)+1]
+        fn_name_m = re.search(r"function\s+(\w+)\(\)\{", fn_sig)
+        style_fn_name = fn_name_m.group(1) if fn_name_m else "b0e"
+
         new_fn_body = f"""return`(() => {{
   const styleId = "zcode-coding-plan-hide-scrollbar";
   if (!document.getElementById(styleId)) {{
     const style = document.createElement("style");
     style.id = styleId;
     style.textContent = "html, body, * {{ scrollbar-width: none !important; }} html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {{ display: none !important; width: 0 !important; height: 0 !important; }}";
-    document.head.appendChild(style);
+    (document.head || document.documentElement).appendChild(style);
   }}
 
   {TR_MAP_CODE}
@@ -474,14 +525,33 @@ def patch_styles(js_content):
 
         js_content = js_content[:pos_fn_start] + fn_sig + new_fn_body + js_content[pos_fn_end:]
 
-    # Webview navigation hook to re-run style injection on page finish or navigation
-    pat_ri = r"r=\(\)=>\{(\w+)\(e=>\(\{\.\.\.e,isLoading:!1\}\)\),(\w+)\(e\)\},i=\(\)=>\{(\w+)\(e\)\}"
-    m_ri = re.search(pat_ri, js_content)
-    if m_ri:
-        style_fn_m = re.search(r"function\s+(\w+)\(\)\{return`\(\(\)\s*=>\s*\{\s*const styleId =", js_content)
-        style_fn_name = style_fn_m.group(1) if style_fn_m else "Y1e"
-        repl_ri = f"r=()=>{{{m_ri.group(1)}(e=>({{...e,isLoading:!1}})),{m_ri.group(2)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}},i=()=>{{{m_ri.group(3)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}}"
-        js_content = js_content.replace(m_ri.group(0), repl_ri, 1)
+        # Webview navigation hook to re-run style injection on page finish or navigation
+        pat_ri = r"r=\(\)=>\{(\w+)\(e=>\(\{\.\.\.e,isLoading:!1\}\)\),(\w+)\(e\)\},i=\(\)=>\{(\w+)\(e\)\}"
+        m_ri = re.search(pat_ri, js_content)
+        if m_ri:
+            repl_ri = f"r=()=>{{{m_ri.group(1)}(e=>({{...e,isLoading:!1}})),{m_ri.group(2)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}},i=()=>{{{m_ri.group(3)}(e),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}}"
+            js_content = js_content.replace(m_ri.group(0), repl_ri, 1)
+
+        # Hook pricing modal credentials injection
+        pat_cred = r'await t\.executeJavaScript\(`\$\{aN\(\)\};\\n\$\{s\}`,\!0\)'
+        m_cred = re.search(pat_cred, js_content)
+        if m_cred:
+            repl_cred = f"await t.executeJavaScript(`${{aN()}};\\n${{s}};\\n${{{style_fn_name}()}}`,!0)"
+            js_content = js_content.replace(m_cred.group(0), repl_cred, 1)
+
+        # Hook rewards modal navigation
+        pat_ren = r'r=\(\)=>\{t\(\),w\(e=>\(\{\.\.\.e,loading:!1\}\)\),_\.current=!0,E\.current\(\)\},i=\(\)=>\{_\.current=!0,t\(\),E\.current\(\)\}'
+        m_ren = re.search(pat_ren, js_content)
+        if m_ren:
+            repl_ren = f"r=()=>{{t(),w(e=>({{...e,loading:!1}})),_.current=!0,E.current(),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}},i=()=>{{_.current=!0,t(),E.current(),e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})}}"
+            js_content = js_content.replace(m_ren.group(0), repl_ren, 1)
+
+        # Hook rewards modal context injection
+        pat_ren_ctx = r'await e\.executeJavaScript\(Ma\(d,\{oauth:c,jwt:l\},a\)\)'
+        m_ren_ctx = re.search(pat_ren_ctx, js_content)
+        if m_ren_ctx:
+            repl_ren_ctx = f"await e.executeJavaScript(Ma(d,{{oauth:c,jwt:l}},a)),await e.executeJavaScript({style_fn_name}(),!0).catch(()=>{{}})"
+            js_content = js_content.replace(m_ren_ctx.group(0), repl_ren_ctx, 1)
     else:
         target_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e)},i=()=>{j(e)}'
         replacement_r_i = 'r=()=>{T(e=>({...e,isLoading:!1})),j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})},i=()=>{j(e),e.executeJavaScript(nMe(),!0).catch(()=>{})}'
@@ -604,13 +674,23 @@ def patch_styles(js_content):
         fn_h4 = m_m4.group(3)
         fn_pne = m_m4.group(4)
         m4_replacement = (
-            'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emülatörü","ios-simulator":"iOS Simülatörü","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","zcode-cua":"Bilgisayar Kontrolü","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri"};'
+            'const TR_P_NAMES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi","Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü","browser-use":"Browser Use","computer-use":"Bilgisayar Kontrolü","document-skills":"Belge Becerileri","dingtalk-cli":"DingTalk CLI","lark-cli":"Lark CLI","obsidian":"Obsidian","alibaba-cloud-cli":"Alibaba Cloud CLI","android-emulator":"Android Emülatörü","ios-simulator":"iOS Simülatörü","skill-creator":"Beceri Oluşturucu","restore-legacy-sessions":"Eski Oturumları Geri Yükle","zcode-guide":"ZCode Rehberi","zcode-cua":"Bilgisayar Kontrolü","video-agent-kit":"Video Ajan Kiti","video2code":"Video2Code","accounting-and-reporting":"Muhasebe ve Raporlama","assess-credit":"Sabit Getiri ve Kredi Araştırması","find-clients":"Kurumsal Müşteri Kazanımı","model-deals":"İşlem Modelleme ve Yapılandırma","pick-funds":"Fon ve Portföy Araştırması","read-macro":"Makro Strateji Analizi","run-fpa":"Finansal Planlama ve Analiz (FP&A)","vet-companies":"Şirket Durum Tespiti (Due Diligence)","watch-positions":"Pozisyon ve Portföy Takibi","write-research":"Yatırım ve Hisse Araştırması","hexin":"Tonghuashun iFinD","wind":"Wind Finansal Veri","tianyancha":"Tianyancha Şirket Bilgileri","finance-search":"Finansal Arama","mimosa":"Kod Güvenlik Koruması","github":"GitHub CLI","gitlab":"GitLab CLI","tencent-meeting-cli":"Tencent Meeting CLI","wecom-cli":"WeCom CLI","cloudbase-skills":"CloudBase Becerileri",'
+            '"Documents":"Belgeler","documents":"Belgeler","documents@zcode-plugins-official":"Belgeler","Word文档":"Belgeler",'
+            '"PDF":"PDF","pdf":"PDF","pdf@zcode-plugins-official":"PDF",'
+            '"Presentations":"Sunumlar","presentations":"Sunumlar","presentations@zcode-plugins-official":"Sunumlar","PPT演示文稿":"Sunumlar",'
+            '"Spreadsheets":"Tablolar","spreadsheets":"Tablolar","spreadsheets@zcode-plugins-official":"Tablolar","Excel表格":"Tablolar",'
+            '"Image Search":"Görsel Arama","image-search":"Görsel Arama","image-search@zcode-plugins-official":"Görsel Arama","以图搜图":"Görsel Arama",'
+            '"Plugin Creator":"Eklenti Oluşturucu","plugin-creator":"Eklenti Oluşturucu","plugin-creator@zcode-plugins-official":"Eklenti Oluşturucu","插件创建器":"Eklenti Oluşturucu",'
+            '"Node REPL Host":"Node REPL","node-repl-host":"Node REPL","node-repl-host@zcode-plugins-official":"Node REPL"};'
             f'const TR_P_DESCS={tr_p_descs_json};'
             f'{plugin_row_helpers}'
             f'function {fn_m4}(e,t){{let k=(e&&(e.name||e.id||(e.listing&&e.listing.displayName)))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_NAMES[base])return TR_P_NAMES[base];if(TR_P_NAMES[k])return TR_P_NAMES[k];let res={fn_dn}(e,t);if(TR_P_NAMES[res])return TR_P_NAMES[res];return res}}'
             f'function {fn_h4}(e,t){{let k=(e&&(e.name||e.id))||"";let base=String(k).replace(/@.*$/,"").replace(/^plugin:/,"").trim();if(TR_P_DESCS[base])return TR_P_DESCS[base];if(TR_P_DESCS[k])return TR_P_DESCS[k];let res={fn_pne}(t,e.summary?.description??e.info?.description??e.installedMeta?.description,e.listing?.descriptionI18n);if(typeof res==="string"){{if(res.startsWith("Built-in browser automation"))return TR_P_DESCS["browser-use"];if(res.startsWith("Computer Use: automate"))return TR_P_DESCS["computer-use"];if(res.startsWith("Built-in DOCX and PDF"))return TR_P_DESCS["document-skills"];if(res.startsWith("DingTalk Workspace CLI"))return TR_P_DESCS["dingtalk-cli"];if(res.startsWith("Lark CLI workflows"))return TR_P_DESCS["lark-cli"];if(res.startsWith("Obsidian authoring skills"))return TR_P_DESCS["obsidian"];if(res.startsWith("Alibaba Cloud CLI"))return TR_P_DESCS["alibaba-cloud-cli"];if(res.startsWith("Local-first security guardrails"))return TR_P_DESCS["mimosa"];if(res.startsWith("CloudBase development skills"))return TR_P_DESCS["cloudbase-skills"];if(res.startsWith("GitHub CLI workflows"))return TR_P_DESCS["github"];if(res.startsWith("GitLab CLI workflows"))return TR_P_DESCS["gitlab"];if(res.startsWith("Tencent Meeting CLI workflows"))return TR_P_DESCS["tencent-meeting-cli"];if(res.startsWith("WeCom CLI workflows"))return TR_P_DESCS["wecom-cli"];if(res.startsWith("Accounting close and statutory"))return TR_P_DESCS["accounting-and-reporting"];if(res.startsWith("Fixed-income and credit"))return TR_P_DESCS["assess-credit"];if(res.startsWith("Corporate-banking client"))return TR_P_DESCS["find-clients"];if(res.startsWith("Transaction structuring"))return TR_P_DESCS["model-deals"];if(res.startsWith("Fund and fund-manager"))return TR_P_DESCS["pick-funds"];if(res.startsWith("Top-down macro"))return TR_P_DESCS["read-macro"];if(res.startsWith("Corporate finance and FP&A"))return TR_P_DESCS["run-fpa"];if(res.startsWith("Counterparty and company"))return TR_P_DESCS["vet-companies"];if(res.startsWith("Watchlist and portfolio"))return TR_P_DESCS["watch-positions"];if(res.startsWith("End-to-end investment"))return TR_P_DESCS["write-research"];if(res.startsWith("MCP services for RoyalFlush"))return TR_P_DESCS["hexin"];if(res.startsWith("MCP services for Wind"))return TR_P_DESCS["wind"];if(res.startsWith("MCP service for Tianyancha"))return TR_P_DESCS["tianyancha"];if(res.startsWith("MCP services for SEC EDGAR"))return TR_P_DESCS["finance-search"];if(res.startsWith("Develop and validate ZCode plugins"))return TR_P_DESCS["plugin-creator"];if(res.startsWith("PDF document production skills"))return TR_P_DESCS["pdf"];if(res.startsWith("PPTX presentation production skills"))return TR_P_DESCS["presentations"];if(res.startsWith("XLSX spreadsheet production skills"))return TR_P_DESCS["spreadsheets"];if(res.startsWith("DOCX document production skills"))return TR_P_DESCS["documents"];if(res.startsWith("Official ZCode image search"))return TR_P_DESCS["image-search"];if(res.startsWith("Shared node_repl runtime host"))return TR_P_DESCS["node-repl-host"];if(res.includes("自动化视频剪辑工具包"))return TR_P_DESCS["video-agent-kit"];if(res.includes("基于 ZCode 内置 Browser Use"))return TR_P_DESCS["video2code"]}}return res}}'
         )
         js_content = js_content.replace(m_m4.group(0), m4_replacement, 1)
+
+    # Connect r2 to fn_m4 (t2)
+    js_content = js_content.replace('return{name:qa(r??e,n),', 'return{name:t2(r??e,n),', 1)
 
     # Subagents descriptions replacement
     if "function _trAgentDesc(" not in js_content:
