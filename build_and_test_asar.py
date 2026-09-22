@@ -386,11 +386,24 @@ def patch_styles(js_content):
     "Better when shared": "Paylaştıkça daha güzel",
     "Invite new users, earn more together.": "Yeni kullanıcılar davet edin, birlikte daha çok kazanın.",
     "Invite new users, earn more together": "Yeni kullanıcılar davet edin, birlikte daha çok kazanın",
+    "Invite new users,": "Yeni kullanıcılar davet edin,",
+    "Invite new users": "Yeni kullanıcılar davet edin",
+    "earn more together.": "birlikte daha çok kazanın.",
+    "earn more together": "birlikte daha çok kazanın",
+    "Earn more together.": "Birlikte daha çok kazanın.",
+    "Earn more together": "Birlikte daha çok kazanın",
     "The campaign hasn't started yet": "Kampanya henüz başlamadı",
+    "The campaign hasn’t started yet": "Kampanya henüz başlamadı",
     "The campaign has not started yet": "Kampanya henüz başlamadı",
+    "hasn't started yet": "henüz başlamadı",
+    "hasn’t started yet": "henüz başlamadı",
     "BUILD TOGETHER": "BİRLİKTE ÜRETİN",
     "Build together": "Birlikte üretin",
     "Build Together": "Birlikte Üretin",
+    "BUILD": "BİRLİKTE",
+    "TOGETHER": "ÜRETİN",
+    "REWARD": "ÖDÜL",
+    "REWARDS": "ÖDÜLLER",
     "Reward tasks": "Ödül Görevleri",
     "Reward Tasks": "Ödül Görevleri",
     "Reward task": "Ödül Görevi",
@@ -406,9 +419,29 @@ def patch_styles(js_content):
     "Status": "Durum",
     "Friend's reward": "Arkadaşın Ödülü",
     "Friend's Reward": "Arkadaşın Ödülü",
+    "Friend’s reward": "Arkadaşın Ödülü",
+    "Friend’s Reward": "Arkadaşın Ödülü",
+    "Arkadaş's reward": "Arkadaşın Ödülü",
+    "Arkadaş’s reward": "Arkadaşın Ödülü",
+    "Arkadaş's Reward": "Arkadaşın Ödülü",
+    "Arkadaş’s Reward": "Arkadaşın Ödülü",
     "Invited at": "Davet Tarihi",
     "Invited At": "Davet Tarihi",
     "No referrals yet": "Henüz davet bulunmuyor",
+    "Reward history": "Ödül Geçmişi",
+    "Reward History": "Ödül Geçmişi",
+    "Ödül history": "Ödül Geçmişi",
+    "Ödül History": "Ödül Geçmişi",
+    "Source": "Kaynak",
+    "source": "kaynak",
+    "Received": "Alındı",
+    "received": "alındı",
+    "Received at": "Alınma Tarihi",
+    "Received At": "Alınma Tarihi",
+    "No rewards yet": "Henüz ödül bulunmuyor",
+    "No rewards yet.": "Henüz ödül bulunmuyor.",
+    "No reward yet": "Henüz ödül bulunmuyor",
+    "No reward yet.": "Henüz ödül bulunmuyor.",
     "Invite friends": "Arkadaşlarını Davet Et",
     "Invite Friends": "Arkadaşlarını Davet Et",
     "Copy invite link": "Davet Bağlantısını Kopyala",
@@ -430,21 +463,41 @@ def patch_styles(js_content):
     if (n.nodeType === 3) {
       let raw = n.nodeValue;
       if (!raw) return;
-      let clean = raw.split(String.fromCharCode(160)).join(" ").split(" ").filter(Boolean).join(" ");
+      let clean = raw.replace(/[\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\r\n\t]/g, " ")
+                     .replace(/\s+/g, " ")
+                     .trim();
       if (!clean) return;
-      if (TR_MAP[clean]) {
+      let cleanNorm = clean.replace(/[\u2018\u2019\u02BC\u2032\u0060]/g, "'");
+
+      if (TR_MAP[clean] || TR_MAP[cleanNorm] || TR_MAP[clean.toUpperCase()] || TR_MAP[clean.toLowerCase()]) {
+        let val = TR_MAP[clean] || TR_MAP[cleanNorm] || TR_MAP[clean.toUpperCase()] || TR_MAP[clean.toLowerCase()];
         let lead = "";
         let trail = "";
-        for (let i = 0; i < raw.length && raw.charCodeAt(i) <= 32; i++) lead += raw[i];
-        for (let i = raw.length - 1; i >= 0 && raw.charCodeAt(i) <= 32; i--) trail = raw[i] + trail;
-        n.nodeValue = lead + TR_MAP[clean] + trail;
+        for (let i = 0; i < raw.length && (raw.charCodeAt(i) <= 32 || raw.charCodeAt(i) === 160); i++) lead += raw[i];
+        for (let i = raw.length - 1; i >= 0 && (raw.charCodeAt(i) <= 32 || raw.charCodeAt(i) === 160); i--) trail = raw[i] + trail;
+        n.nodeValue = lead + val + trail;
         return;
       }
-      let modified = raw;
+      let modified = raw.replace(/[\u2018\u2019\u02BC\u2032]/g, "'");
       for (const en of SORTED_KEYS) {
         if (modified.includes(en)) {
           modified = modified.replaceAll(en, TR_MAP[en]);
         }
+      }
+      if (modified.includes("Arkadaş's reward") || modified.includes("Arkadaş’s reward") || modified.includes("Arkadaş's Reward") || modified.includes("Arkadaş’s Reward")) {
+        modified = modified.replace(/Arkadaş['’]s [Rr]eward/g, "Arkadaşın Ödülü");
+      }
+      if (modified.includes("Ödül history") || modified.includes("Ödül History")) {
+        modified = modified.replace(/Ödül [Hh]istory/g, "Ödül Geçmişi");
+      }
+      if (cleanNorm.includes("campaign has") && cleanNorm.includes("started yet")) {
+        modified = "Kampanya henüz başlamadı";
+      }
+      if (cleanNorm.includes("Invite new users") && cleanNorm.includes("earn more together")) {
+        modified = "Yeni kullanıcılar davet edin, birlikte daha çok kazanın.";
+      }
+      if (clean.toUpperCase() === "BUILD TOGETHER" || clean.toUpperCase() === "BUILDTOGETHER") {
+        modified = "BİRLİKTE ÜRETİN";
       }
       if (clean.startsWith("6x Lite usage") || clean.startsWith("6× Lite usage")) {
         modified = "6 kat Lite kullanımı + Tüm avantajlar";
