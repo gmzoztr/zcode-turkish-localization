@@ -2,7 +2,7 @@
 ### (Community Turkish Localization for ZCode Desktop)
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.14.0%2B-green.svg)](https://zcode.z.ai)
+[![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.14.3%2B-green.svg)](https://zcode.z.ai)
 [![Keys Translated](https://img.shields.io/badge/Translated%20Keys-6%2C295-orange.svg)](tr_dictionary_zcode.json)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Cross--Platform-lightgrey.svg)](#kurulum)
 [![GitHub stars](https://img.shields.io/github/stars/gmzoztr/zcode-turkish-localization?style=social)](https://github.com/gmzoztr/zcode-turkish-localization)
