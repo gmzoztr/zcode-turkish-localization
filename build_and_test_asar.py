@@ -463,11 +463,19 @@ def patch_styles(js_content):
     if (n.nodeType === 3) {
       let raw = n.nodeValue;
       if (!raw) return;
-      let clean = raw.replace(/[\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\r\n\t]/g, " ")
-                     .replace(/\s+/g, " ")
-                     .trim();
+
+      let clean = raw.split(String.fromCharCode(160)).join(" ")
+                     .split(String.fromCharCode(10)).join(" ")
+                     .split(String.fromCharCode(13)).join(" ")
+                     .split(String.fromCharCode(9)).join(" ")
+                     .split(" ").filter(Boolean).join(" ");
       if (!clean) return;
-      let cleanNorm = clean.replace(/[\u2018\u2019\u02BC\u2032\u0060]/g, "'");
+
+      let cleanNorm = clean.split(String.fromCharCode(8217)).join("'")
+                           .split(String.fromCharCode(8216)).join("'")
+                           .split(String.fromCharCode(700)).join("'")
+                           .split(String.fromCharCode(8242)).join("'")
+                           .split(String.fromCharCode(96)).join("'");
 
       if (TR_MAP[clean] || TR_MAP[cleanNorm] || TR_MAP[clean.toUpperCase()] || TR_MAP[clean.toLowerCase()]) {
         let val = TR_MAP[clean] || TR_MAP[cleanNorm] || TR_MAP[clean.toUpperCase()] || TR_MAP[clean.toLowerCase()];
@@ -478,17 +486,20 @@ def patch_styles(js_content):
         n.nodeValue = lead + val + trail;
         return;
       }
-      let modified = raw.replace(/[\u2018\u2019\u02BC\u2032]/g, "'");
+
+      let modified = raw.split(String.fromCharCode(8217)).join("'")
+                        .split(String.fromCharCode(8216)).join("'");
       for (const en of SORTED_KEYS) {
         if (modified.includes(en)) {
-          modified = modified.replaceAll(en, TR_MAP[en]);
+          modified = modified.split(en).join(TR_MAP[en]);
         }
       }
-      if (modified.includes("Arkadaş's reward") || modified.includes("Arkadaş’s reward") || modified.includes("Arkadaş's Reward") || modified.includes("Arkadaş’s Reward")) {
-        modified = modified.replace(/Arkadaş['’]s [Rr]eward/g, "Arkadaşın Ödülü");
+
+      if (modified.includes("Arkadaş's reward") || modified.includes("Arkadaş's Reward")) {
+        modified = modified.split("Arkadaş's reward").join("Arkadaşın Ödülü").split("Arkadaş's Reward").join("Arkadaşın Ödülü");
       }
       if (modified.includes("Ödül history") || modified.includes("Ödül History")) {
-        modified = modified.replace(/Ödül [Hh]istory/g, "Ödül Geçmişi");
+        modified = modified.split("Ödül history").join("Ödül Geçmişi").split("Ödül History").join("Ödül Geçmişi");
       }
       if (cleanNorm.includes("campaign has") && cleanNorm.includes("started yet")) {
         modified = "Kampanya henüz başlamadı";
@@ -506,7 +517,7 @@ def patch_styles(js_content):
       } else if (clean.startsWith("20x Lite usage") || clean.startsWith("20× Lite usage")) {
         modified = "20 kat Lite kullanımı + Tüm avantajlar";
       } else if (clean.startsWith("Save 10% annually")) {
-        modified = clean.replace("Save 10% annually", "Yıllık %10 indirim").replace("From", "Başlangıç:").replace(/[/／]\s*months?\b/gi, " / ay").replace("/ay", " / ay");
+        modified = "Yıllık %10 indirim";
       } else if (clean.startsWith("Unified")) {
         modified = "Birleşik kullanıcı ve yetki yönetimi";
       }
