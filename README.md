@@ -1,19 +1,59 @@
 # 🇹🇷 ZCode Desktop Türkçe Dil Paketi & Yerelleştirme Altyapısı
-### (Community Turkish Localization for ZCode Desktop)
+### (Community Turkish Localization & Engineering Infrastructure for ZCode Desktop)
+
+<div align="center">
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.14.3%2B-green.svg)](https://zcode.z.ai)
 [![Keys Translated](https://img.shields.io/badge/Translated%20Keys-6%2C295-orange.svg)](tr_dictionary_zcode.json)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Cross--Platform-lightgrey.svg)](#kurulum)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Cross--Platform-lightgrey.svg)](#-kurulum-installation)
+[![Maintenance Commitment](https://img.shields.io/badge/Maintenance-Day--0%20SLA-blue.svg)](#-note-to-official-zcode-developers-zai-org)
 [![GitHub stars](https://img.shields.io/github/stars/gmzoztr/zcode-turkish-localization?style=social)](https://github.com/gmzoztr/zcode-turkish-localization)
+
+[📥 **Tek Tıkla İndir (.exe)**](https://github.com/gmzoztr/zcode-turkish-localization/releases/latest) • 
+[⭐ **Yıldız Ver (Star)**](https://github.com/gmzoztr/zcode-turkish-localization) • 
+[💬 **Geri Bildirim / Hata Bildir**](https://github.com/gmzoztr/zcode-turkish-localization/issues) • 
+[🏛️ **Proposal for ZCode Team**](#-note-to-official-zcode-developers-zai-org)
+
+</div>
+
+---
+
+> [!TIP]
+> 🌟 **Projeyi beğendiyseniz sağ üst köşeden bir ⭐ Yıldız (Star) bırakarak bize destek olabilirsiniz!**  
+> GitHub yıldızlarınız, ZCode resmi ekibinin Türkçe dilini doğrudan çekirdeğe (native) entegre etmesini hızlandırmak ve projenin görünürlüğünü artırmak için en büyük katkıdır.
 
 ZCode Desktop yapay zeka destekli IDE ve kodlama asistanı için geliştirilmiş **en kapsamlı, %100 eksiksiz ve bağımsız Türkçe yerelleştirme projesidir**.
 
 Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerden (skills) fiyatlandırma webview'larına, v3.14.0 ile gelen 3 adımlı karşılama sihirbazından iş akışlarına (workflows) kadar ZCode'un tüm katmanlarını Türkçeleştirir.
 
-> [!TIP]
-> **Projeyi beğendiyseniz sağ üst köşeden bir ⭐ Yıldız (Star) bırakarak bize destek olabilirsiniz!**  
-> GitHub yıldızlarınız, ZCode resmi ekibinin Türkçe dilini doğrudan çekirdeğe (native) entegre etmesini hızlandırmak ve projenin görünürlüğünü artırmak için en büyük katkıdır.
+---
+
+## 📢 Note to Official ZCode Developers (@zai-org)
+
+> **Dear ZCode Team & Contributors at [@zai-org](https://github.com/zai-org) / Zhipu AI,**
+
+First of all, congratulations on creating **ZCode**! It is an outstanding agentic IDE and coding assistant, and our Turkish developer community truly appreciates the hard work your team is putting into this product.
+
+### Why We Built This Project
+We created this Turkish Localization infrastructure to make ZCode accessible to hundreds of thousands of Turkish-speaking developers, engineers, and students. Currently, Turkish is not included in the default `IntlProvider` locales (`zh-CN`, `en-US`), which led us to engineer this comprehensive external patching mechanism.
+
+### Our Commitment to Maintenance & Day-0 SLA
+* **Continuous Updates:** Whenever a new official ZCode update is released, we immediately inspect changes, translate newly added strings, verify syntax with `node --check`, and publish an updated patch release within hours.
+* **Production-Grade Quality:** 6,295 verified keys covering `IntlProvider`, native desktop menus, subagents, and official extension stores.
+
+### Proposal / Feature Request for ZCode Core
+1. **Native `tr-TR` Support:**  
+   If the core team can natively integrate Turkish (`tr-TR` or `tr`) into `IntlProvider` alongside `en-US` and `zh-CN`, we are ready to submit our **6,295-key dictionary (`tr_dictionary_zcode.json`)** as an official Pull Request.
+2. **Advance Notification / String Diffs:**  
+   If you can share string changes or notify us before major version releases, we will happily provide 100% verified Turkish translations ahead of time so Turkish users never experience untranslated UI after updates.
+3. **Official Community Partnership:**  
+   We are available to maintain the Turkish language ecosystem, documentation, and user support as an official community partner.
+
+📩 **Let's Connect:**
+- **Official Team Inquiry:** [Open a Core Team Inquiry](https://github.com/gmzoztr/zcode-turkish-localization/issues/new?template=official_inquiry.md)
+- **Direct Email:** `abdurrahmanavci@gmail.com`
+- **GitHub:** [@gmzoztr](https://github.com/gmzoztr)
 
 ---
 
@@ -36,10 +76,10 @@ Bu proje; arayüz metinlerinden eklenti mağazasına, komutlardan ve yeteneklerd
 
 ---
 
-## 🚀 Kurulum (Kullanıcılar İçin)
+## 🚀 Kurulum (Installation)
 
 ### Yöntem 1: Tek Tıkla Kurulum (.exe - Önerilen)
-1. **[Releases](https://github.com/gmzoztr/zcode-turkish-localization/releases)** sayfasından en son `ZCode_Tek_Tik_Yama.exe` dosyasını indirin.
+1. **[Releases](https://github.com/gmzoztr/zcode-turkish-localization/releases/latest)** sayfasından en son `ZCode_Tek_Tik_Yama.exe` dosyasını indirin.
 2. ZCode açıkken veya kapalıyken çift tıklayıp çalıştırın (Gerekirse Yönetici İzni verin).
 3. 3 saniye içinde yama uygulanır ve ZCode otomatik olarak Türkçe başlatılır.
 
@@ -55,29 +95,6 @@ python patch_zcode_tr.py
 
 ---
 
-## 📢 Note to Official ZCode Developers (@zai-org)
-
-> **Dear ZCode Team & Contributors at [@zai-org](https://github.com/zai-org),**
-
-First of all, congratulations on creating **ZCode**! It is an outstanding agentic IDE and coding assistant, and our Turkish developer community truly appreciates the hard work your team is putting into this product.
-
-### Why We Built This
-We created this Turkish Localization project to make ZCode accessible to hundreds of thousands of Turkish-speaking developers, engineers, and students. Currently, Turkish is not included in the default `IntlProvider` locales (`zh-CN`, `en-US`), which led us to build this external patching mechanism.
-
-### Our Commitment to Maintenance
-* **Continuous Updates:** Whenever a new official ZCode update is released, we actively inspect changes, translate newly added strings, verify syntax with `node --check`, and publish an updated patch release.
-* **Open Partnership:** We would love to collaborate directly with the ZCode core team.
-
-### Proposal / Feature Request for ZCode Core
-1. **Native `tr-TR` Support:**  
-   If the core team can natively integrate Turkish (`tr-TR` or `tr`) into `IntlProvider` alongside `en-US` and `zh-CN`, we are ready to submit our **6,295-key dictionary (`tr_dictionary_zcode.json`)** as an official Pull Request.
-2. **Advance Notification / String Diffs:**  
-   If you can share string changes or notify us before major version releases, we will happily provide 100% verified Turkish translations ahead of time so Turkish users never experience untranslated UI or broken patches after updates.
-
-Feel free to contact us or open an issue in this repository, or reach out to us on GitHub ([@gmzoztr](https://github.com/gmzoztr)).
-
----
-
 ## 📂 Depo Yapısı (Repository Structure)
 
 ```
@@ -90,15 +107,19 @@ zcode-turkish-localization/
 ├── apply_packages_tr.py        # Resmi eklenti paketlerini yerelleştirme aracı
 ├── deploy_all.ps1              # PowerShell tam dağıtım otomasyonu
 ├── ARCHITECTURE_TR.md          # Detaylı mimarî bilgi grafiği ve hata önleme rehberi
+├── CONTRIBUTING.md              # Katkıda bulunma rehberi
+├── SECURITY.md                  # Güvenlik politikası
 ├── LICENSE                     # MIT Lisansı
 └── README.md                   # Dokümantasyon
 ```
 
 ---
 
-## 🤝 Katkıda Bulunma (Contributing)
+## 🤝 Katkıda Bulunma & İletişim
 
-Hatalı veya geliştirilebilecek bir çeviri fark ederseniz lütfen bir **Issue** açın veya **Pull Request** gönderin. Her türlü katkı memnuniyetle karşılanır!
+* **Hata Bildir:** [Issues](https://github.com/gmzoztr/zcode-turkish-localization/issues)
+* **Topluluk Tartışmaları:** [Discussions](https://github.com/gmzoztr/zcode-turkish-localization/discussions)
+* **Pull Request:** [Pull Requests](https://github.com/gmzoztr/zcode-turkish-localization/pulls)
 
 ## 📄 Lisans (License)
 Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
