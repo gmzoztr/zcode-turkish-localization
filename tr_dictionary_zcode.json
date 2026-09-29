@@ -6293,5 +6293,11 @@
   "chat.toolCall.workflow.run.concurrency.cooldown": "{time} zamanına kadar soğuma süresi",
   "chat.toolCall.workflow.run.subagentModel.label": "Alt ajanlar {model}",
   "chat.toolCall.workflow.subagentModel.withLevel": "{model} · düşünce {level}",
-  "chat.toolCall.workflow.subagentModel.tooltip": "Alt ajanlar {model} üzerinde çalışır. Ana ajan oturum modelinde kalır."
+  "chat.toolCall.workflow.subagentModel.tooltip": "Alt ajanlar {model} üzerinde çalışır. Ana ajan oturum modelinde kalır.",
+  "bots.setup.guide.webhook.bind.2": "İstek gövdesi en azından bu botId'yi, sabit bir userId'yi, `chatType: \"private\"` parametresini içermeli ve text değerini {command} olarak ayarlamalıdır.",
+  "chat.toolCall.workflow.timeline.roster.unlisted.one": "Listelenmeyen 1 ajan daha var",
+  "chat.toolCall.workflow.timeline.roster.unlisted.many": "Listelenmeyen {count} ajan daha var",
+  "chat.toolCall.workflow.run.truncated": "{total} adımın {shown} adımı için ayrıntılar gösteriliyor",
+  "chat.toolCall.workflow.run.settings.consequence.concurrencyLive": "Hemen bu çalıştırmaya uygulanır; yeni bir çalıştırma başlatılmaz.",
+  "chat.toolCall.workflow.run.event.runCapsChanged": "Eşzamanlılık sınırı {previous} → {next}"
 }
