@@ -869,9 +869,12 @@ def patch_styles(js_content):
                 js_content = js_content.replace(target_cmd_hint, replacement_cmd_hint, 1)
 
     # Plugin settings row helpers and replacements
-    target_plugin_name = 'children:si(e.name,m)}'
-    if target_plugin_name in js_content:
-        js_content = js_content.replace(target_plugin_name, 'children:_trPluginNameRow(e,si(e.name,m))}', 1)
+    if 'children:si(e.name,m)}' in js_content:
+        js_content = js_content.replace('children:si(e.name,m)}', 'children:_trPluginNameRow(e,si(e.name,m))}', 1)
+    else:
+        m_pn = re.search(r'children:(\w+)\(e\.name,(\w+)\)\}', js_content)
+        if m_pn:
+            js_content = js_content.replace(m_pn.group(0), f'children:_trPluginNameRow(e,{m_pn.group(1)}(e.name,{m_pn.group(2)}))}}', 1)
 
     target_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:e.description}}):null'
     if target_plugin_desc in js_content:

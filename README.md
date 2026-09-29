@@ -4,8 +4,8 @@
 <div align="center">
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.14.3%2B-green.svg)](https://zcode.z.ai)
-[![Keys Translated](https://img.shields.io/badge/Translated%20Keys-6%2C295-orange.svg)](tr_dictionary_zcode.json)
+[![Tested On](https://img.shields.io/badge/ZCode%20Version-v3.14.4%2B-green.svg)](https://zcode.z.ai)
+[![Keys Translated](https://img.shields.io/badge/Translated%20Keys-6%2C301-orange.svg)](tr_dictionary_zcode.json)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Cross--Platform-lightgrey.svg)](#-kurulum-installation)
 [![Maintenance Commitment](https://img.shields.io/badge/Maintenance-Day--0%20SLA-blue.svg)](#-note-to-official-zcode-developers-zai-org)
 [![GitHub stars](https://img.shields.io/github/stars/gmzoztr/zcode-turkish-localization?style=social)](https://github.com/gmzoztr/zcode-turkish-localization)
@@ -40,11 +40,11 @@ We created this Turkish Localization infrastructure to make ZCode accessible to 
 
 ### Our Commitment to Maintenance & Day-0 SLA
 * **Continuous Updates:** Whenever a new official ZCode update is released, we immediately inspect changes, translate newly added strings, verify syntax with `node --check`, and publish an updated patch release within hours.
-* **Production-Grade Quality:** 6,295 verified keys covering `IntlProvider`, native desktop menus, subagents, and official extension stores.
+* **Production-Grade Quality:** 6,301 verified keys covering `IntlProvider`, native desktop menus, subagents, and official extension stores.
 
 ### Proposal / Feature Request for ZCode Core
 1. **Native `tr-TR` Support:**  
-   If the core team can natively integrate Turkish (`tr-TR` or `tr`) into `IntlProvider` alongside `en-US` and `zh-CN`, we are ready to submit our **6,295-key dictionary (`tr_dictionary_zcode.json`)** as an official Pull Request.
+   If the core team can natively integrate Turkish (`tr-TR` or `tr`) into `IntlProvider` alongside `en-US` and `zh-CN`, we are ready to submit our **6,301-key dictionary (`tr_dictionary_zcode.json`)** as an official Pull Request.
 2. **Advance Notification / String Diffs:**  
    If you can share string changes or notify us before major version releases, we will happily provide 100% verified Turkish translations ahead of time so Turkish users never experience untranslated UI after updates.
 3. **Official Community Partnership:**  
