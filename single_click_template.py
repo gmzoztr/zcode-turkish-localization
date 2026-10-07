@@ -422,6 +422,8 @@ def patch_html(html_content):
 
   const SORTED_DOM_KEYS = Object.keys(DOM_MAP).sort((a, b) => b.length - a.length);
 
+  let isTranslating = false;
+
   function translateNode(n) {
     if (!n) return;
     if (n.nodeType === 3) {
@@ -435,7 +437,8 @@ def patch_html(html_content):
         let mTrail = rawNorm.match(/\s+$/);
         let lead = mLead ? mLead[0] : "";
         let trail = mTrail ? mTrail[0] : "";
-        n.nodeValue = lead + DOM_MAP[clean] + trail;
+        let targetVal = lead + DOM_MAP[clean] + trail;
+        if (n.nodeValue !== targetVal) n.nodeValue = targetVal;
         return;
       }
       let modified = rawNorm;
@@ -495,14 +498,22 @@ def patch_html(html_content):
       if (modified.includes("Credits / week") || modified.includes("Credits/week")) {
         modified = modified.replace("Credits / week", "Kredi / hafta").replace("Credits/week", "Kredi / hafta");
       }
-      if (modified !== raw) n.nodeValue = modified;
+      if (modified !== raw && n.nodeValue !== modified) n.nodeValue = modified;
     } else if (n.nodeType === 1) {
       if (n.tagName === "SCRIPT" || n.tagName === "STYLE") return;
-      if (n.placeholder && DOM_MAP[n.placeholder.trim()]) n.placeholder = DOM_MAP[n.placeholder.trim()];
-      if (n.title && DOM_MAP[n.title.trim()]) n.title = DOM_MAP[n.title.trim()];
+      if (n.placeholder && DOM_MAP[n.placeholder.trim()]) {
+        let pv = DOM_MAP[n.placeholder.trim()];
+        if (n.placeholder !== pv) n.placeholder = pv;
+      }
+      if (n.title && DOM_MAP[n.title.trim()]) {
+        let tv = DOM_MAP[n.title.trim()];
+        if (n.title !== tv) n.title = tv;
+      }
       if (n.getAttribute && n.getAttribute("aria-label")) {
         const aria = n.getAttribute("aria-label").trim();
-        if (DOM_MAP[aria]) n.setAttribute("aria-label", DOM_MAP[aria]);
+        if (DOM_MAP[aria] && n.getAttribute("aria-label") !== DOM_MAP[aria]) {
+          n.setAttribute("aria-label", DOM_MAP[aria]);
+        }
       }
       for (let c = n.firstChild; c; c = c.nextSibling) {
         translateNode(c);
@@ -510,24 +521,32 @@ def patch_html(html_content):
     }
   }
 
-  if (document.body) translateNode(document.body);
+  function safeTranslate(root) {
+    if (isTranslating || !root) return;
+    isTranslating = true;
+    try {
+      translateNode(root);
+    } finally {
+      isTranslating = false;
+    }
+  }
+
+  if (document.body) safeTranslate(document.body);
 
   const obs = new MutationObserver(mutations => {
+    if (isTranslating) return;
     for (const m of mutations) {
       if (m.type === "childList") {
         for (let i = 0; i < m.addedNodes.length; i++) {
-          translateNode(m.addedNodes[i]);
+          safeTranslate(m.addedNodes[i]);
         }
-      } else if (m.type === "characterData") {
-        translateNode(m.target);
       }
     }
   });
 
   obs.observe(document.documentElement, {
     childList: true,
-    subtree: true,
-    characterData: true
+    subtree: true
   });
 })();
 </script>"""
@@ -1090,8 +1109,10 @@ def patch_styles(js_content):
         )
         js_content = js_content.replace(m_m4.group(0), m4_replacement, 1)
 
-    # Connect r2 to fn_m4 (t2)
-    js_content = js_content.replace('return{name:qa(r??e,n),', 'return{name:t2(r??e,n),', 1)
+    # Connect r2 to fn_m4 (t2) and _trPluginDescRow
+    js_content = js_content.replace('return{name:qa(r??e,n),description:r?n2(r,n):e.description}}', 'return{name:t2(r??e,n),description:r?n2(r,n):_trPluginDescRow(e)}}', 1)
+    if 'return{name:t2(r??e,n)' not in js_content:
+        js_content = js_content.replace('return{name:qa(r??e,n),', 'return{name:t2(r??e,n),', 1)
 
     # Subagents descriptions replacement
     if "function _trAgentDesc(" not in js_content:
@@ -1208,10 +1229,6 @@ def patch_styles(js_content):
     # Plugin settings row helpers and replacements
     if 'children:si(e.name,m)}' in js_content:
         js_content = js_content.replace('children:si(e.name,m)}', 'children:_trPluginNameRow(e,si(e.name,m))}', 1)
-    else:
-        m_pn = re.search(r'children:(\w+)\(e\.name,(\w+)\)\}', js_content)
-        if m_pn:
-            js_content = js_content.replace(m_pn.group(0), f'children:_trPluginNameRow(e,{m_pn.group(1)}(e.name,{m_pn.group(2)}))}}', 1)
 
     target_plugin_desc = f'className:{bt}mt-0.5 line-clamp-1 text-ui-sm text-foreground-subtle{bt},children:e.description}}):null'
     if target_plugin_desc in js_content:
