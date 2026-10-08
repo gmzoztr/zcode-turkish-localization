@@ -6,9 +6,9 @@ settings (81 keys) translations
 
 PART2_TR = {
     "settings.interfaceMode": "Arayüz modu",
-    "settings.interfaceMode.office": "Ofis modu",
-    "settings.interfaceMode.coding": "Kodlama modu",
-    "settings.interfaceMode.description": "Ofis modu özetlere ve sonuçlara odaklanır. Kodlama modu komutları, çıktıları ve kod değişikliklerini gösterir.",
+    "settings.interfaceMode.office": "Ofis Modu",
+    "settings.interfaceMode.coding": "Kodlama Modu",
+    "settings.interfaceMode.description": "Ofis Modu özetlere ve sonuçlara odaklanır. Kodlama Modu komutları, çıktıları ve kod değişikliklerini gösterir.",
     "settings.shortcuts.title": "Klavye Kısayolları",
     "settings.shortcuts.searchPlaceholder": "Kısayollarda ara",
     "settings.shortcuts.keySearchAria": "Tuş kombinasyonuyla ara",
@@ -51,7 +51,7 @@ PART2_TR = {
     "settings.shortcuts.command.toggleTerminal": "Terminali Aç/Kapat",
     "settings.shortcuts.command.previousConversation": "Önceki Görev",
     "settings.shortcuts.command.nextConversation": "Sonraki Görev",
-    "settings.shortcuts.command.toggleInterfaceMode": "Kodlama/Ofis modunu değiştir",
+    "settings.shortcuts.command.toggleInterfaceMode": "Kodlama/Ofis Modunu değiştir",
     "settings.shortcuts.command.openOnboarding": "Başlangıç rehberini aç/kapat",
     "settings.shortcuts.command.navigateBack": "Geriye Git",
     "settings.shortcuts.command.navigateForward": "İleriye Git",

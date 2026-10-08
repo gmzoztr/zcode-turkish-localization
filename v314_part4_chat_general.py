@@ -6,7 +6,7 @@ chat other keys (70 keys) translations
 
 PART4_TR = {
     "chat.officeSuggestions.setting": "Proaktif görev önerileri",
-    "chat.officeSuggestions.settingDescription": "Yalnızca Ofis modunda geçerlidir.",
+    "chat.officeSuggestions.settingDescription": "Yalnızca Ofis Modunda geçerlidir.",
     "chat.plugins.browseMarketplace": "Eklenti mağazasına göz at",
     "chat.plugins.loadError": "Eklentiler yüklenemedi. Tekrar denemek için menüyü yeniden açın.",
     "chat.officeSuggestions.saveError": "Öneri ayarları kaydedilemedi. Lütfen tekrar deneyin.",
