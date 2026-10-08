@@ -12,7 +12,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ZCODE_RESOURCES = r"C:\Program Files\ZCode\resources"
-ORIG_ASAR = os.path.join(ZCODE_RESOURCES, "app.asar.orig.v3144") if os.path.exists(os.path.join(ZCODE_RESOURCES, "app.asar.orig.v3144")) else (os.path.join(ZCODE_RESOURCES, "app.asar.orig") if os.path.exists(os.path.join(ZCODE_RESOURCES, "app.asar.orig")) else os.path.join(ZCODE_RESOURCES, "app.asar"))
+ORIG_ASAR = os.path.join(ZCODE_RESOURCES, "app.asar.orig.v3145") if os.path.exists(os.path.join(ZCODE_RESOURCES, "app.asar.orig.v3145")) else (os.path.join(ZCODE_RESOURCES, "app.asar.orig") if os.path.exists(os.path.join(ZCODE_RESOURCES, "app.asar.orig")) else os.path.join(ZCODE_RESOURCES, "app.asar"))
 PATCHED_ASAR = os.path.join(BASE_DIR, "app.asar.patched")
 DICT_PATH = os.path.join(BASE_DIR, "tr_dictionary_zcode.json")
 
