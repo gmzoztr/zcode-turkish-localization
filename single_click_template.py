@@ -808,7 +808,18 @@ def patch_styles(js_content):
     "Activity rules": "Etkinlik Kuralları",
     "Activity Rules": "Etkinlik Kuralları",
     "View rules": "Kuralları Görüntüle",
-    "View Rules": "Kuralları Görüntüle"
+    "View Rules": "Kuralları Görüntüle",
+    "Documents": "Belge Becerileri",
+    "DOCUMENTS": "Belge Becerileri",
+    "PDF": "PDF Becerileri",
+    "Presentations": "Sunum Becerileri",
+    "PRESENTATIONS": "Sunum Becerileri",
+    "Spreadsheets": "Tablo Becerileri",
+    "SPREADSHEETS": "Tablo Becerileri",
+    "Plugin Creator": "Eklenti Oluşturucu",
+    "PLUGIN CREATOR": "Eklenti Oluşturucu",
+    "Microsoft Foundry": "Microsoft Foundry",
+    "MICROSOFT FOUNDRY": "Microsoft Foundry"
   };
 
   const SORTED_KEYS = Object.keys(TR_MAP).sort((a, b) => b.length - a.length);
@@ -874,7 +885,29 @@ def patch_styles(js_content):
         modified = "20 kat Lite kullanımı + Tüm avantajlar";
       } else if (clean.startsWith("Save 10% annually")) {
         modified = "Yıllık %10 indirim";
-      } else if (clean.startsWith("Unified")) {
+      } else if (clean.startsWith("Comprehensive DOCX") || clean.startsWith("Revizyonlar, yorumlar")) {
+        modified = "Revizyonlar, yorumlar, biçimlendirme koruma ve metin çıkarma desteğiyle kapsamlı DOCX belgesi oluşturma, düzenleme ve analiz yetenekleri. Şablon tabanlı üretim ve format dönüştürmeyi destekler.";
+      } else if (clean.startsWith("Professional PDF") || clean.startsWith("4 özel iş akışına")) {
+        modified = "4 özel iş akışına sahip profesyonel PDF işleme araç seti: Typst/ReportLab ile yayın kalitesinde PDF üretimi, HTML/CSS tuvali ile görsel belge biçimlendirme, LaTeX ile akademik makaleler ve PyMuPDF/pdfplumber ile programatik düzenleme. Akıllı yönlendirme, format doğrulama ve otomatik kalite kontrolleri içerir.";
+      } else if (clean.startsWith("PowerPoint (.pptx)") || clean.startsWith("PowerPoint ( .pptx )")) {
+        modified = "PowerPoint (.pptx) sunum oluşturma, biçimlendirme ve düzenleme yetenekleri. Sıfırdan veya taslaklardan sunum hazırlama, mevcut slaytları düzenleme ve metin/not çıkarma işlemlerini kapsar.";
+      } else if (clean.startsWith("Advanced spreadsheet") || clean.startsWith("Veri analizi, formüller")) {
+        modified = "Veri analizi, formüller ve grafiklerle Excel (.xlsx, .xlsm, .csv) için gelişmiş elektronik tablo işleme yetenekleri. Sıfırdan çalışma kitapları oluşturma, mevcut tabloları düzenleme, veri analizi ve formül hesaplamalarını kapsar.";
+      } else if (clean.startsWith("Create or update ZCode plugin")) {
+        modified = "ZCode eklenti kaynak kodunu ve yerel bir test mağazasını oluşturun veya güncelleyin; ardından kullanıcıya mağazayı ekleme, eklentiyi yükleme veya güncelleme ve uygulamada deneme konusunda rehberlik edin.";
+      } else if (clean.startsWith("Discover available Azure OpenAI")) {
+        modified = "Bölgeler ve abonelikler genelinde kullanılabilir Azure OpenAI model kapasitesini keşfeder. Kota sınırlarını analiz eder ve en uygun dağıtım konumlarını önerir.";
+      } else if (clean.startsWith("Interactive guided deployment flow")) {
+        modified = "Tam özelleştirme kontrolüyle Azure OpenAI modelleri için etkileşimli rehberli dağıtım akışı. Model sürümü, SKU, kapasite ve içerik filtreleme ilkesi seçimini sağlar.";
+      } else if (clean.startsWith("Unified Azure OpenAI model deployment")) {
+        modified = "Akıllı amaç tabanlı yönlendirme ile birleşik Azure OpenAI model dağıtım yeteneği. Hem hızlı ön ayarlı hem de tam özelleştirilmiş dağıtımları yönetir.";
+      } else if (clean.startsWith("Fine-tune models on Microsoft Foundry")) {
+        modified = "SFT, DPO veya RFT kullanarak Microsoft Foundry üzerinde modelleri ince ayarlar (fine-tune). Veri kümesi hazırlama, eğitim işi gönderme, değerlendirme ve dağıtımı kapsar.";
+      } else if (clean.startsWith("Build, deploy, evaluate, optimize, fine-tune, and manage Microsoft Foundry")) {
+        modified = "Microsoft Foundry ajanlarını, modellerini ve kaynaklarını uçtan uca derleyin, dağıtın, değerlendirin, optimize edin, ince ayar yapın ve yönetin.";
+      } else if (clean.startsWith("Smart deployment of Azure OpenAI")) {
+        modified = "Kullanılabilir tüm bölgelerdeki kapasiteyi analiz ederek Azure OpenAI modellerini en uygun bölgelere akıllıca dağıtır. Kapasite mevcut olduğunda geçerli bölgeyi tercih eder.";
+      } else if (clean.startsWith("Unified user & permission") || clean.startsWith("Unified seat & permission") || clean.startsWith("Unified user and permission") || clean.startsWith("Unified kullanıcı &")) {
         modified = "Birleşik kullanıcı ve yetki yönetimi";
       }
       if (modified.includes("per kullanıcı/ay") || modified.includes("per user/month") || modified.includes("per seat/month")) {
@@ -1142,11 +1175,23 @@ def patch_styles(js_content):
     # Section titles helper injection
     if "function _trSectionTitle(" not in js_content:
         section_title_helper = (
-            'const TR_SEC_TITLES={"Restore Legacy Sessions":"Eski Oturumları Geri Yükle",'
-            '"Skill Creator":"Beceri Oluşturucu","ZCode Guide":"ZCode Rehberi",'
-            '"Android Emulator":"Android Emülatörü","iOS Simulator":"iOS Simülatörü",'
-            '"Document Skills":"Belge Becerileri","Browser Use":"Browser Use","Computer Use":"Bilgisayar Kontrolü"};'
-            'function _trSectionTitle(n){return TR_SEC_TITLES[n]||n};'
+            'const TR_SEC_TITLES={'
+            '"Restore Legacy Sessions":"Eski Oturumları Geri Yükle","RESTORE LEGACY SESSIONS":"Eski Oturumları Geri Yükle",'
+            '"Skill Creator":"Beceri Oluşturucu","SKILL CREATOR":"Beceri Oluşturucu",'
+            '"ZCode Guide":"ZCode Rehberi","ZCODE GUIDE":"ZCode Rehberi",'
+            '"Android Emulator":"Android Emülatörü","ANDROID EMULATOR":"Android Emülatörü",'
+            '"iOS Simulator":"iOS Simülatörü","IOS SIMULATOR":"iOS Simülatörü",'
+            '"Document Skills":"Belge Becerileri","DOCUMENT SKILLS":"Belge Becerileri",'
+            '"Documents":"Belge Becerileri","DOCUMENTS":"Belge Becerileri",'
+            '"PDF":"PDF Becerileri","Pdf":"PDF Becerileri",'
+            '"Presentations":"Sunum Becerileri","PRESENTATIONS":"Sunum Becerileri",'
+            '"Spreadsheets":"Tablo Becerileri","SPREADSHEETS":"Tablo Becerileri",'
+            '"Plugin Creator":"Eklenti Oluşturucu","PLUGIN CREATOR":"Eklenti Oluşturucu",'
+            '"Microsoft Foundry":"Microsoft Foundry","MICROSOFT FOUNDRY":"Microsoft Foundry",'
+            '"Browser Use":"Browser Use","BROWSER USE":"Browser Use",'
+            '"Computer Use":"Bilgisayar Kontrolü","COMPUTER USE":"Bilgisayar Kontrolü"'
+            '};'
+            'function _trSectionTitle(n){if(!n)return n;let u=n.toUpperCase();if(TR_SEC_TITLES[u])return TR_SEC_TITLES[u];if(TR_SEC_TITLES[n])return TR_SEC_TITLES[n];return n};'
         )
         m1 = re.search(r"function\s+(\w+)\(\{count:e,hint:t,title:n\}\)\{", js_content)
         m2 = re.search(r"function\s+(\w+)\(\{actions:e,count:t,title:n\}\)\{", js_content)
@@ -1159,7 +1204,8 @@ def patch_styles(js_content):
     # Skills and Commands helpers injection
     if "function _trSkillDesc(" not in js_content:
         skill_cmd_helpers = (
-            'const TR_SKILL_DESCS={"restore-legacy-sessions":"ZCode\'un ~/.zcode/v2/sessions altındaki eski ACP dönemi ZCode oturumlarını yeni ZCode görev/oturum depolarına aktarması, incelemesi veya planlaması gerektiğinde kullanın. Eski sohbet geçmişini taşıma veya önceki oturumları geri yükleme sorularında tetiklenir.",'
+            'const TR_SKILL_DESCS={'
+            '"restore-legacy-sessions":"ZCode\'un ~/.zcode/v2/sessions altındaki eski ACP dönemi ZCode oturumlarını yeni ZCode görev/oturum depolarına aktarması, incelemesi veya planlaması gerektiğinde kullanın. Eski sohbet geçmişini taşıma veya önceki oturumları geri yükleme sorularında tetiklenir.",'
             '"skill-creator":"Yeni beceriler oluşturun, mevcut becerileri düzenleyin ve ifadeleri iyileştirin. Sıfırdan SKILL.md yazarken, mevcut becerileri geliştirirken, tekrarlanan iş akışlarını yeniden kullanılabilir becerilere dönüştürürken veya beceri tetikleyicilerini giderirken kullanın.",'
             '"diagnosing-commands":"ZCode istemcisindeki özel eğik çizgi komutu (/komut) yapılandırma sorunlarını teşhis etmek ve düzeltmek için kullanın. Bir komut eksik olduğunda, bir beceri/ajan tarafından geçersiz kılındığında, ayrıştırılamadığında, kapsamlarda yinelenen adlara sahip olduğunda veya çalıştırılamadığında geçerlidir.",'
             '"diagnosing-hooks":"ZCode istemcisindeki kanca (hook) yapılandırma sorunlarını teşhis etmek ve düzeltmek için kullanın. Bir kanca tetiklenmediğinde, bir olay adı yanlış olduğunda, bir eşleştirici eşleşmediğinde, bir komut dosyası başarısız olduğunda veya kanca sıralaması/izinleri beklenmeyen davranışlara yol açtığında geçerlidir.",'
@@ -1169,10 +1215,39 @@ def patch_styles(js_content):
             '"zcode-configuration-guide":"ZCode istemcisinde uzantı kaynaklarını (MCP sunucuları, eğik çizgi komutları, beceriler, kancalar ve eklentiler) veya AGENTS.md gibi talimat dosyalarını yapılandırırken kullanın. Bir kullanıcı bu uzantı mekanizmalarının nasıl ekleneceğini, düzenleneceğini veya yapılandırılacağını sorduğunda geçerlidir.",'
             '"ios-dev":"ios-simulator MCP araçlarıyla iOS simülatör uygulamalarını derleyin, çalıştırın, denetleyin ve kolayca otomatikleştirin.",'
             '"android-emulator":"Android emülatörlerini yönetme, başlatma ve cihaz kontrolü için geliştirici araçları.",'
-            '"android-dev":"android-emulator MCP araçlarıyla Android emülatör uygulamalarını derleyin, çalıştırın, denetleyin ve kolayca otomatikleştirin."};'
+            '"android-dev":"android-emulator MCP araçlarıyla Android emülatör uygulamalarını derleyin, çalıştırın, denetleyin ve kolayca otomatikleştirin.",'
+            '"docx":"Revizyonlar, yorumlar, biçimlendirme koruma ve metin çıkarma desteğiyle kapsamlı DOCX belgesi oluşturma, düzenleme ve analiz yetenekleri. Şablon tabanlı üretim ve format dönüştürmeyi destekler.",'
+            '"pdf":"4 özel iş akışına sahip profesyonel PDF işleme araç seti: Typst/ReportLab ile yayın kalitesinde PDF üretimi, HTML/CSS tuvali ile görsel belge biçimlendirme, LaTeX ile akademik makaleler ve PyMuPDF/pdfplumber ile programatik düzenleme. Akıllı yönlendirme, format doğrulama ve otomatik kalite kontrolleri içerir.",'
+            '"pptx":"PowerPoint (.pptx) sunum oluşturma, biçimlendirme ve düzenleme yetenekleri. Sıfırdan veya taslaklardan sunum hazırlama, mevcut slaytları düzenleme ve metin/not çıkarma işlemlerini kapsar.",'
+            '"xlsx":"Veri analizi, formüller ve grafiklerle Excel (.xlsx, .xlsm, .csv) için gelişmiş elektronik tablo işleme yetenekleri. Sıfırdan çalışma kitapları oluşturma, mevcut tabloları düzenleme, veri analizi ve formül hesaplamalarını kapsar.",'
+            '"plugin-creator":"ZCode eklenti kaynak kodunu ve yerel bir test mağazasını oluşturun veya güncelleyin; ardından kullanıcıya mağazayı ekleme, eklentiyi yükleme veya güncelleme ve uygulamada deneme konusunda rehberlik edin.",'
+            '"capacity":"Bölgeler ve abonelikler genelinde kullanılabilir Azure OpenAI model kapasitesini keşfeder. Kota sınırlarını analiz eder ve en uygun dağıtım konumlarını önerir.",'
+            '"customize":"Tam özelleştirme kontrolüyle Azure OpenAI modelleri için etkileşimli rehberli dağıtım akışı. Model sürümü, SKU, kapasite ve içerik filtreleme ilkesi seçimini sağlar.",'
+            '"deploy-model":"Akıllı amaç tabanlı yönlendirme ile birleşik Azure OpenAI model dağıtım yeteneği. Hem hızlı ön ayarlı hem de tam özelleştirilmiş dağıtımları yönetir.",'
+            '"finetuning":"SFT, DPO veya RFT kullanarak Microsoft Foundry üzerinde modelleri ince ayarlar (fine-tune). Veri kümesi hazırlama, eğitim işi gönderme, değerlendirme ve dağıtımı kapsar.",'
+            '"microsoft-foundry":"Microsoft Foundry ajanlarını, modellerini ve kaynaklarını uçtan uca derleyin, dağıtın, değerlendirin, optimize edin, ince ayar yapın ve yönetin.",'
+            '"preset":"Kullanılabilir tüm bölgelerdeki kapasiteyi analiz ederek Azure OpenAI modellerini en uygun bölgelere akıllıca dağıtır. Kapasite mevcut olduğunda geçerli bölgeyi tercih eder.",'
+            '"control-browser":"Yalnızca ana ajan tarayıcı kullanımı: ZCode içinde web sayfalarını ve yerel HTTP hedeflerini açın, gezinin, inceleyin, tıklayın, form doldurun, ekran görüntüsü alın ve doğrulayın.",'
+            '"web-gui-tester":"Oturumdaki tarayıcı otomasyon araçlarını kullanarak web arayüzlerini etkileşimli olarak test edin, kullanıcı eylemlerini simüle edin, ekran görüntüleriyle doğrulayın ve test raporu oluşturun.",'
+            '"computer-use":"Erişilebilirlik odaklı semantik eylemler ve görsel doğrulama ile masaüstü kontrolü.",'
+            '"zcode-computer-use":"Erişilebilirlik odaklı semantik eylemler ve görsel doğrulama ile masaüstü kontrolü.",'
+            '"chrome-cdp":"Chrome oturumu ile etkileşim kurun, sayfaları denetleyin ve test edin.",'
+            '"codebase-memory":"Yapısal kod sorguları, mimari keşif ve çağrı zinciri analizi için kod tabanı bilgi grafiğini kullanın.",'
+            '"desktop-eye":"Canlı masaüstü ekran görüntüsü alarak arayüz bağlamını anlık olarak doğrulayın."'
+            '};'
             'function _trSkillDesc(e){let n=(e&&(e.name||e.id))||"";let b=n.includes(":")?n.slice(n.indexOf(":")+1):n;'
-            'if(TR_SKILL_DESCS[b])return TR_SKILL_DESCS[b];if(TR_SKILL_DESCS[n])return TR_SKILL_DESCS[n];'
             'let d=(e&&e.description)||"";if(typeof d==="string"){'
+            'if(d.startsWith("Comprehensive DOCX")||d.startsWith("Revizyonlar, yorumlar"))return TR_SKILL_DESCS["docx"];'
+            'if(d.startsWith("Professional PDF")||d.startsWith("4 özel iş akışına"))return TR_SKILL_DESCS["pdf"];'
+            'if(d.startsWith("PowerPoint (.pptx)")||d.startsWith("PowerPoint ( .pptx )"))return TR_SKILL_DESCS["pptx"];'
+            'if(d.startsWith("Advanced spreadsheet")||d.startsWith("Veri analizi, formüller"))return TR_SKILL_DESCS["xlsx"];'
+            'if(d.startsWith("Create or update ZCode plugin"))return TR_SKILL_DESCS["plugin-creator"];'
+            'if(d.startsWith("Discover available Azure OpenAI"))return TR_SKILL_DESCS["capacity"];'
+            'if(d.startsWith("Interactive guided deployment flow"))return TR_SKILL_DESCS["customize"];'
+            'if(d.startsWith("Unified Azure OpenAI model deployment"))return TR_SKILL_DESCS["deploy-model"];'
+            'if(d.startsWith("Fine-tune models on Microsoft Foundry"))return TR_SKILL_DESCS["finetuning"];'
+            'if(d.startsWith("Build, deploy, evaluate, optimize, fine-tune, and manage Microsoft Foundry"))return TR_SKILL_DESCS["microsoft-foundry"];'
+            'if(d.startsWith("Smart deployment of Azure OpenAI"))return TR_SKILL_DESCS["preset"];'
             'if(d.startsWith("Use when ZCode needs to inspect"))return TR_SKILL_DESCS["restore-legacy-sessions"];'
             'if(d.startsWith("Create new skills"))return TR_SKILL_DESCS["skill-creator"];'
             'if(d.startsWith("Use to diagnose and fix ZCode custom slash-command"))return TR_SKILL_DESCS["diagnosing-commands"];'
@@ -1183,6 +1258,7 @@ def patch_styles(js_content):
             'if(d.startsWith("Use when configuring ZCode")&&d.includes("extension resources"))return TR_SKILL_DESCS["zcode-configuration-guide"];'
             'if(d.startsWith("Build, run, inspect, and lightly automate iOS"))return TR_SKILL_DESCS["ios-dev"];'
             'if(d.startsWith("Build, run, inspect, and lightly automate Android"))return TR_SKILL_DESCS["android-dev"]}'
+            'if(TR_SKILL_DESCS[b])return TR_SKILL_DESCS[b];if(TR_SKILL_DESCS[n])return TR_SKILL_DESCS[n];'
             'return d};'
             'const TR_CMD_DESCS={"android-dev":"Android emülatör geliştirme döngüsünü başlatın.","/android-dev":"Android emülatör geliştirme döngüsünü başlatın.",'
             '"ios-dev":"iOS simülatör geliştirme döngüsünü başlatın.","/ios-dev":"iOS simülatör geliştirme döngüsünü başlatın.",'
@@ -1418,29 +1494,31 @@ PLUGIN_TRANSLATIONS = {
 }
 
 SKILL_TRANSLATIONS = {
-    "android-dev": "android-emulator MCP araçlarıyla Android uygulamaları derleyin, çalıştırın, inceleyin ve otomatikleştirin.",
+    "android-dev": "android-emulator MCP araçlarıyla Android emülatör uygulamalarını derleyin, çalıştırın, denetleyin ve kolayca otomatikleştirin.",
     "control-browser": "Yalnızca ana ajan tarayıcı kullanımı: ZCode içinde web sayfalarını ve yerel HTTP hedeflerini açın, gezinin, inceleyin, tıklayın, form doldurun, ekran görüntüsü alın ve doğrulayın.",
     "web-gui-tester": "Oturumdaki tarayıcı otomasyon araçlarını kullanarak web arayüzlerini etkileşimli olarak test edin, kullanıcı eylemlerini simüle edin, ekran görüntüleriyle doğrulayın ve test raporu oluşturun.",
-    "docx": "Revizyonlar, yorumlar, biçimlendirme koruma ve metin çıkarma desteğiyle eksiksiz DOCX belgesi oluşturma, düzenleme ve analiz yetenekleri.",
-    "pdf": "PDF belgeleri oluşturma, form doldurma, metin çıkarma ve profesyonel sayfa düzeni desteği.",
-    "pptx": "PowerPoint (.pptx) sunumları oluşturma ve düzenleme yetenekleri.",
-    "xlsx": "Tablo dosyaları, veri analizleri, formüller ve grafikler için gelişmiş Excel (.xlsx) işleme yetenekleri.",
-    "ios-dev": "ios-simulator MCP araçlarıyla iOS simülatör uygulamaları derleyin, çalıştırın, inceleyin ve otomatikleştirin.",
-    "restore-legacy-sessions": "Eski ACP dönemi ZCode oturumlarını inceleyin, planlayın ve yeni ZCode oturum deposuna geri yükleyin.",
-    "skill-creator": "Yeni yetenekler oluşturun, mevcut yetenekleri düzenleyin ve metinleri iyileştirin.",
+    "docx": "Revizyonlar, yorumlar, biçimlendirme koruma ve metin çıkarma desteğiyle kapsamlı DOCX belgesi oluşturma, düzenleme ve analiz yetenekleri. Şablon tabanlı üretim ve format dönüştürmeyi destekler.",
+    "pdf": "4 özel iş akışına sahip profesyonel PDF işleme araç seti: Typst/ReportLab ile yayın kalitesinde PDF üretimi, HTML/CSS tuvali ile görsel belge biçimlendirme, LaTeX ile akademik makaleler ve PyMuPDF/pdfplumber ile programatik düzenleme. Akıllı yönlendirme, format doğrulama ve otomatik kalite kontrolleri içerir.",
+    "pptx": "PowerPoint (.pptx) sunum oluşturma, biçimlendirme ve düzenleme yetenekleri. Sıfırdan veya taslaklardan sunum hazırlama, mevcut slaytları düzenleme ve metin/not çıkarma işlemlerini kapsar.",
+    "xlsx": "Veri analizi, formüller ve grafiklerle Excel (.xlsx, .xlsm, .csv) için gelişmiş elektronik tablo işleme yetenekleri. Sıfırdan çalışma kitapları oluşturma, mevcut tabloları düzenleme, veri analizi ve formül hesaplamalarını kapsar.",
+    "ios-dev": "ios-simulator MCP araçlarıyla iOS simülatör uygulamalarını derleyin, çalıştırın, denetleyin ve kolayca otomatikleştirin.",
+    "restore-legacy-sessions": "ZCode'un ~/.zcode/v2/sessions altındaki eski ACP dönemi ZCode oturumlarını yeni ZCode görev/oturum depolarına aktarması, incelemesi veya planlaması gerektiğinde kullanın. Eski sohbet geçmişini taşıma veya önceki oturumları geri yükleme sorularında tetiklenir.",
+    "skill-creator": "Yeni beceriler oluşturun, mevcut becerileri düzenleyin ve ifadeleri iyileştirin. Sıfırdan SKILL.md yazarken, mevcut becerileri geliştirirken, tekrarlanan iş akışlarını yeniden kullanılabilir becerilere dönüştürürken veya beceri tetikleyicilerini giderirken kullanın.",
+    "plugin-creator": "ZCode eklenti kaynak kodunu ve yerel bir test mağazasını oluşturun veya güncelleyin; ardından kullanıcıya mağazayı ekleme, eklentiyi yükleme veya güncelleme ve uygulamada deneme konusunda rehberlik edin.",
     "computer-use": "Erişilebilirlik odaklı semantik eylemler ve görsel doğrulama ile masaüstü kontrolü.",
-    "diagnosing-commands": "ZCode istemcisindeki özel eğik çizgi komutu (/komut) yapılandırma sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-hooks": "ZCode istemcisindeki kanca (hook) yapılandırma sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-mcp": "ZCode istemcisindeki MCP (Model Context Protocol) sunucu yapılandırma sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-plugins": "ZCode istemcisindeki eklenti ve pazar yeri sorunlarını tanılayın ve düzeltin.",
-    "diagnosing-skills": "ZCode istemcisindeki yetenek (skill) yapılandırma sorunlarını tanılayın ve düzeltin.",
-    "zcode-configuration-guide": "ZCode uzantı kaynaklarını (MCP sunucuları, eğik çizgi komutları, yetenekler, kancalar) yapılandırırken veya sorunları giderirken kullanın.",
-    "microsoft-foundry": "Microsoft Foundry ajanlarını, modellerini ve kaynaklarını uçtan uca derleyin, dağıtın, değerlendirin, optimize edin ve yönetin.",
-    "finetuning": "SFT, DPO veya RFT kullanarak Microsoft Foundry üzerinde modelleri ince ayarlar (fine-tune). Veri kümesi hazırlama, eğitim işi gönderme ve değerlendirmeyi kapsar.",
-    "deploy-model": "Akıllı amaç tabanlı yönlendirme ile birleşik Azure OpenAI model dağıtım yeteneği. Hızlı ön ayarlı ve tam özelleştirilmiş dağıtımları yönetir.",
-    "capacity": "Bölgeler ve projeler genelinde kullanılabilir Azure OpenAI model kapasitesini keşfeder. Kota sınırlarını analiz eder ve en uygun dağıtım konumlarını önerir.",
-    "customize": "Tam özelleştirme kontrolüyle Azure OpenAI modelleri için etkileşimli rehberli dağıtım akışı. Model sürümü, SKU, kapasite ve filtre politikası seçimini sağlar.",
-    "preset": "Kullanılabilir tüm bölgelerdeki kapasiteyi analiz ederek Azure OpenAI modellerini en uygun bölgelere akıllıca dağıtır.",
+    "zcode-computer-use": "Erişilebilirlik odaklı semantik eylemler ve görsel doğrulama ile masaüstü kontrolü.",
+    "diagnosing-commands": "ZCode istemcisindeki özel eğik çizgi komutu (/komut) yapılandırma sorunlarını teşhis etmek ve düzeltmek için kullanın. Bir komut eksik olduğunda, bir beceri/ajan tarafından geçersiz kılındığında, ayrıştırılamadığında, kapsamlarda yinelenen adlara sahip olduğunda veya çalıştırılamadığında geçerlidir.",
+    "diagnosing-hooks": "ZCode istemcisindeki kanca (hook) yapılandırma sorunlarını teşhis etmek ve düzeltmek için kullanın. Bir kanca tetiklenmediğinde, bir olay adı yanlış olduğunda, bir eşleştirici eşleşmediğinde, bir komut dosyası başarısız olduğunda veya kanca sıralaması/izinleri beklenmeyen davranışlara yol açtığında geçerlidir.",
+    "diagnosing-mcp": "ZCode istemcisindeki MCP (Model Bağlam Protokolü) sunucu yapılandırma sorunlarını teşhis etmek ve düzeltmek için kullanın. Bir MCP sunucusu bağlanmadığında, araçları eksik olduğunda, işlemi hata ile sonlandığında, aktarım protokolü (stdio veya SSE) yanlış yapılandırıldığında veya ortam değişkenleri hatalı olduğunda geçerlidir.",
+    "diagnosing-plugins": "ZCode istemcisindeki eklenti ve mağaza sorunlarını teşhis etmek ve düzeltmek için kullanın. Bir eklenti listelenmediğinde, mağaza ekleme veya eklenti yükleme başarısız olduğunda, bir eklenti komutu/becerisi/ajanı eksik olduğunda veya bir eklenti yapılandırması bozulduğunda geçerlidir.",
+    "diagnosing-skills": "ZCode istemcisindeki beceri yapılandırma sorunlarını teşhis etmek ve düzeltmek için kullanın. Bir beceri keşfedilmediğinde, yüklü olduğu halde otomatik tetiklenmediğinde, dosyaları eksik olduğunda, frontmatter ayrıştırma hataları verdiğinde veya kapsamlarda yinelenen adlara sahip olduğunda geçerlidir.",
+    "zcode-configuration-guide": "ZCode istemcisinde uzantı kaynaklarını (MCP sunucuları, eğik çizgi komutları, beceriler, kancalar ve eklentiler) veya AGENTS.md gibi talimat dosyalarını yapılandırırken kullanın. Bir kullanıcı bu uzantı mekanizmalarının nasıl ekleneceğini, düzenleneceğini veya yapılandırılacağını sorduğunda geçerlidir.",
+    "microsoft-foundry": "Microsoft Foundry ajanlarını, modellerini ve kaynaklarını uçtan uca derleyin, dağıtın, değerlendirin, optimize edin, ince ayar yapın ve yönetin.",
+    "finetuning": "SFT, DPO veya RFT kullanarak Microsoft Foundry üzerinde modelleri ince ayarlar (fine-tune). Veri kümesi hazırlama, eğitim işi gönderme, değerlendirme ve dağıtımı kapsar.",
+    "deploy-model": "Akıllı amaç tabanlı yönlendirme ile birleşik Azure OpenAI model dağıtım yeteneği. Hem hızlı ön ayarlı hem de tam özelleştirilmiş dağıtımları yönetir.",
+    "capacity": "Bölgeler ve abonelikler genelinde kullanılabilir Azure OpenAI model kapasitesini keşfeder. Kota sınırlarını analiz eder ve en uygun dağıtım konumlarını önerir.",
+    "customize": "Tam özelleştirme kontrolüyle Azure OpenAI modelleri için etkileşimli rehberli dağıtım akışı. Model sürümü, SKU, kapasite ve içerik filtreleme ilkesi seçimini sağlar.",
+    "preset": "Kullanılabilir tüm bölgelerdeki kapasiteyi analiz ederek Azure OpenAI modellerini en uygun bölgelere akıllıca dağıtır. Kapasite mevcut olduğunda geçerli bölgeyi tercih eder.",
     "chrome-cdp": "Chrome oturumu ile etkileşim kurun, sayfaları denetleyin ve test edin.",
     "codebase-memory": "Yapısal kod sorguları, mimari keşif ve çağrı zinciri analizi için kod tabanı bilgi grafiğini kullanın.",
     "desktop-eye": "Canlı masaüstü ekran görüntüsü alarak arayüz bağlamını anlık olarak doğrulayın."
